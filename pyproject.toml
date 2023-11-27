@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "muski-vml"
+version = "0.1.0"
+description = "Personalized playlist creator and recommender"
+authors = ["Nasr Kasrin <n42r.me@gmail.com>"]
+license = "GNU General Public License v3.0"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
