@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "muski-vml"
+name = "muskivml"
 version = "0.1.0"
 description = "Personalized playlist creator and recommender"
 authors = ["Nasr Kasrin <n42r.me@gmail.com>"]
@@ -8,7 +8,12 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.10"
+spotipy = "^2.23.0"
 
+
+[tool.poetry.group.dev.dependencies]
+email-validator = "^2.1.0.post1"
+pytest = "^7.4.3"
 
 [build-system]
 requires = ["poetry-core"]
