@@ -1,8 +1,8 @@
 import pytest
 from email_validator import validate_email
 
-from muskivml.usecases import login_signup
-from muskivml.onloaders import OnLoaderEnum, OnLoader
+from virtmulib.usecases import login_signup
+from virtmulib.onloaders import OnLoaderEnum, OnLoader
 
 def test_login_get_email_spotify() -> bool:
 	email = login_signup(OnLoaderEnum.spotify)

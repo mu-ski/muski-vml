@@ -23,7 +23,7 @@ from pydantic import EmailStr
 
 from spotipy.oauth2 import SpotifyOauthError
 
-from muskivml.onloaders import *
+from virtmulib.onloaders import *
 
 def login_signup(onloader: OnLoaderEnum) -> EmailStr:
 	if onloader == OnLoaderEnum.spotify:
