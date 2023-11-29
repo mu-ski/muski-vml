@@ -1,18 +1,20 @@
 import abc
 from abc import ABC
 from pydantic import BaseModel, EmailStr
-from enum import IntEnum
-
 import spotipy
-from spotipy.oauth2 import SpotifyOAuth
+from spotipy.oauth2 import SpotifyOAuth, SpotifyOauthError
+
+class OnLoaderAuthError(Exception):
+	"User-defined exception class to wrap auth errors of onloaders."
+	pass
 
 class OnLoader(BaseModel, ABC):	
+	"Abstract class interface for onloaders."
+
 	@abc.abstractmethod
 	def login_signup() -> EmailStr:
+		"Fuction to implement the login onto the onloader service."
 		pass
-
-class OnLoaderEnum(IntEnum):
-	spotify = 1
 
 class SpotifyOnLoader(OnLoader):
 	def login_signup():
@@ -25,7 +27,10 @@ class SpotifyOnLoader(OnLoader):
 
 		scopes = ['user-read-email', 'user-follow-read', 'user-library-read',
 					'streaming', 'user-top-read', 'playlist-modify-public']
-
-		sp = spotipy.Spotify(auth_manager=SpotifyOAuth(scope=scopes))
-		user = sp.current_user()
-		return user['email']
+		
+		try:
+			sp = spotipy.Spotify(auth_manager=SpotifyOAuth(scope=scopes))
+			user = sp.current_user()
+			return user['email']
+		except SpotifyOauthError as error:
+			raise OnLoaderAuthError(str(error))
