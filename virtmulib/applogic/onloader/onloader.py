@@ -16,21 +16,50 @@ class OnLoader(BaseModel, ABC):
 		"Fuction to implement the login onto the onloader service."
 		pass
 
-class SpotifyOnLoader(OnLoader):
-	def login_signup():
-		# scopes = ["user-follow-read", 'ugc-image-upload', 'user-read-playback-state',
-		#   'user-modify-playback-state', 'user-read-currently-playing', 'user-read-private',
-		#   'user-read-email', 'user-follow-modify', 'user-follow-read', 'user-library-modify',
-		#   'user-library-read', 'streaming', 'app-remote-control', 'user-read-playback-position',
-		#   'user-top-read', 'user-read-recently-played', 'playlist-modify-private', 'playlist-read-collaborative',
-		#   'playlist-read-private', 'playlist-modify-public']
+class SpotifyOnLoader(OnLoader, arbitrary_types_allowed=True):
+	sp: spotipy.Spotify = None
 
-		scopes = ['user-read-email', 'user-follow-read', 'user-library-read',
-					'streaming', 'user-top-read', 'playlist-modify-public']
-		
+	def login_signup(self):
+		scopes = ['user-read-email', 'user-library-read', 'streaming',
+					'user-top-read', 'playlist-modify-public']
+
 		try:
-			sp = spotipy.Spotify(auth_manager=SpotifyOAuth(scope=scopes))
-			user = sp.current_user()
-			return user['email']
+			self.sp = spotipy.Spotify(auth_manager=SpotifyOAuth(scope=scopes))
 		except SpotifyOauthError as error:
 			raise OnLoaderAuthError(str(error))
+
+		user = self.sp.current_user()
+		return user['email']
+
+	def get_user_data(self) -> None:
+		if self.sp is None:
+			self.login_signup()
+
+		print()
+		print('User Followed Artists')
+		print(self.sp.current_user_followed_artists())
+		
+		print()
+		print('User Followed Playlists')
+		print(self.sp.current_user_playlists())
+
+		print()
+		print('User Saved albums')
+		print(self.sp.current_user_saved_albums())
+
+		print()
+		print('User save tracks')
+		print(self.sp.current_user_saved_tracks())
+
+		print()
+		print('User top artists')
+		print(self.sp.current_user_top_artists())
+
+		print()
+		print('User top tracks')
+		print(self.sp.current_user_top_tracks())
+		
+
+		#current_user_followed_artists
+
+

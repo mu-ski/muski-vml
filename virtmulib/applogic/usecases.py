@@ -26,7 +26,14 @@ from virtmulib.applogic.onloader import OnLoader, OnLoaderAuthError
 class LoginSignup:
 	def __call__(self, onloader: OnLoader) -> EmailStr:
 		try:
-			return onloader.login_signup()
+			return onloader().login_signup()
 		except OnLoaderAuthError as e:
 			print(str(e))
 
+
+class GetUserData:
+	def __call__(self, onloader: OnLoader) -> None:
+		try:
+			return onloader().get_user_data()
+		except OnLoaderAuthError as e:
+			print(str(e))
