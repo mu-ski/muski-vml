@@ -1,8 +1,12 @@
 import abc
 from abc import ABC
 from pydantic import BaseModel, EmailStr
-import spotipy
-from spotipy.oauth2 import SpotifyOAuth, SpotifyOauthError
+from enum import Enum
+
+from virtmulib.entities import Playlist, User, Track, Album, Artist
+
+class OnLoaderEnum(Enum):
+	Spotify = 'spotify'
 
 class OnLoaderAuthError(Exception):
 	"User-defined exception class to wrap auth errors of onloaders."
@@ -12,54 +16,30 @@ class OnLoader(BaseModel, ABC):
 	"Abstract class interface for onloaders."
 
 	@abc.abstractmethod
-	def login_signup() -> EmailStr:
+	def login_signup(self) -> EmailStr:
 		"Fuction to implement the login onto the onloader service."
 		pass
 
-class SpotifyOnLoader(OnLoader, arbitrary_types_allowed=True):
-	sp: spotipy.Spotify = None
+	@abc.abstractmethod
+	def _get_playlists(self) -> list[Playlist]:
+		pass
 
-	def login_signup(self):
-		scopes = ['user-read-email', 'user-library-read', 'streaming',
-					'user-top-read', 'playlist-modify-public']
+	@abc.abstractmethod
+	def _get_albums(self) -> list[Album]:
+		pass
 
-		try:
-			self.sp = spotipy.Spotify(auth_manager=SpotifyOAuth(scope=scopes))
-		except SpotifyOauthError as error:
-			raise OnLoaderAuthError(str(error))
+	@abc.abstractmethod
+	def _get_liked_tracks(self) -> list[Track]:
+		pass
+	
+	@abc.abstractmethod
+	def _get_top_artist(self) -> list[Artist]:
+		pass
 
-		user = self.sp.current_user()
-		return user['email']
+	@abc.abstractmethod
+	def _get_top_tracks(self) -> list[Track]:
+		pass
 
-	def get_user_data(self) -> None:
-		if self.sp is None:
-			self.login_signup()
-
-		print()
-		print('User Followed Artists')
-		print(self.sp.current_user_followed_artists())
-		
-		print()
-		print('User Followed Playlists')
-		print(self.sp.current_user_playlists())
-
-		print()
-		print('User Saved albums')
-		print(self.sp.current_user_saved_albums())
-
-		print()
-		print('User save tracks')
-		print(self.sp.current_user_saved_tracks())
-
-		print()
-		print('User top artists')
-		print(self.sp.current_user_top_artists())
-
-		print()
-		print('User top tracks')
-		print(self.sp.current_user_top_tracks())
-		
-
-		#current_user_followed_artists
-
-
+	@abc.abstractmethod
+	def _get_followed_artists(self) -> list[Artist]:
+		pass
