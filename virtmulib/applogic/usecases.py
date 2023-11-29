@@ -21,13 +21,12 @@ If the details of a use-case change, then some code in this layer will certainly
 """
 from pydantic import EmailStr
 
-from spotipy.oauth2 import SpotifyOauthError
+from virtmulib.applogic.onloader import OnLoader, OnLoaderAuthError
 
-from virtmulib.onloaders import *
-
-def login_signup(onloader: OnLoaderEnum) -> EmailStr:
-	if onloader == OnLoaderEnum.spotify:
+class LoginSignup:
+	def __call__(self, onloader: OnLoader) -> EmailStr:
 		try:
-			return SpotifyOnLoader.login_signup()
-		except SpotifyOauthError:
-			return None
+			return onloader.login_signup()
+		except OnLoaderAuthError as e:
+			print(str(e))
+
