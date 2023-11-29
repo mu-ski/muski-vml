@@ -1,7 +1,7 @@
 [tool.poetry]
-name = "muskivml"
+name = "virtmulib"
 version = "0.1.0"
-description = "Personalized playlist creator and recommender"
+description = "A virtual music library"
 authors = ["Nasr Kasrin <n42r.me@gmail.com>"]
 license = "GNU General Public License v3.0"
 readme = "README.md"

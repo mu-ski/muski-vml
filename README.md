@@ -1,6 +1,6 @@
-# Muski VML (Virtual Music Library)
+# A Virtual Music Library
 
-The *virtual music library* and *music recommendation engine* powering muski
+Virtual music library and music recommendation engine
 
 
 # Product Overview
