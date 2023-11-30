@@ -27,19 +27,11 @@ class OnLoader(BaseModel, ABC):
 	@abc.abstractmethod
 	def _get_albums(self) -> list[Album]:
 		pass
-
-	@abc.abstractmethod
-	def _get_liked_tracks(self) -> list[Track]:
-		pass
 	
 	@abc.abstractmethod
-	def _get_top_artist(self) -> list[Artist]:
+	def _get_tracks(self) -> list[Track]:
 		pass
 
 	@abc.abstractmethod
-	def _get_top_tracks(self) -> list[Track]:
-		pass
-
-	@abc.abstractmethod
-	def _get_followed_artists(self) -> list[Artist]:
+	def _get_artists(self) -> list[Artist]:
 		pass
