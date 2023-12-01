@@ -32,7 +32,7 @@ class LoginSignup:
 			print(str(e))
 
 class GetUserData:
-	def __call__(self, onloader: OnLoader) -> User:
+	def __call__(self, onloader: OnLoader) -> None:
 		try:
 			return onloader().get_user_data()
 		except OnLoaderAuthError as e:

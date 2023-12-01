@@ -21,17 +21,17 @@ class OnLoader(BaseModel, ABC):
 		pass
 
 	@abc.abstractmethod
-	def _add_playlists(self) -> None:
+	def get_playlists(self) -> list[Playlist]:
 		pass
 
 	@abc.abstractmethod
-	def _add_albums(self) -> None:
+	def get_albums(self) -> list[Album]:
 		pass
 	
 	@abc.abstractmethod
-	def _add_tracks(self) -> None:
+	def get_tracks(self) -> list[Track]:
 		pass
 
 	@abc.abstractmethod
-	def _add_artists(self) -> None:
+	def get_artists(self) -> list[Artist]:
 		pass

@@ -20,12 +20,10 @@ def demo_pydantic_mongo () -> None:
 	db = client.test
 	db.name #=> test
 	mycoll = db.my_collection_2
-
-
+	
 	s1 = Sandwich(name='Magnoona!')
 	s2 = Sandwich(name='Cheese Sandwich')
 	s3 = Sandwich(name='Super spicy chicken')
-
 
 	db.my_collection_2.insert_one(s1.model_dump(by_alias=True, exclude=["id"]))
 	db.my_collection.insert_one(s2.model_dump(by_alias=True, exclude=["id"]))
