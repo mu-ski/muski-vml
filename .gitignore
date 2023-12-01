@@ -3,6 +3,7 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+temp.json
 .cache*
 
 # C extensions

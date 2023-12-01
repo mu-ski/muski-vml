@@ -1,48 +1,139 @@
 from abc import ABC
-from datetime import datetime
-from pydantic import BaseModel, EmailStr, UUID4
+import re
+from datetime import date
+from typing import Optional
+from enum import Enum
+from pydantic import BaseModel, EmailStr, UUID4, Field
 
-class VMLAgent(BaseModel, ABC):
+class AIAgentEnum(Enum):
+	llamma_2_70gb = 'llamma_2_70gb'
+
+
+class ReleaseTypeEnum(Enum):
+	album = 'album'
+	single = 'single'
+	compilation = 'compilation'
+
+	@classmethod
+	def get_release_enum_by_name(cls, name:str) -> 'ReleaseTypeEnum':
+		nm = name.lower().strip()
+		if nm.find('album') > -1:
+			return ReleaseTypeEnum.album
+		elif nm.find('single') > -1:
+			return ReleaseTypeEnum.single
+		elif nm.find('compilation') > -1:
+			return ReleaseTypeEnum.compilation
+		return None
+
+
+class SourcesEnum(Enum):
+	spotify = 'spotify'
+
+
+class Artist(BaseModel):
+	id: Optional[int] = None
+	name: Optional[str] = None
+	active_from: Optional[date] = None
+	active_to: Optional[date] = None
+	musicbrainz_id: Optional[UUID4] = None
+	spotify_id: Optional[str] = None
+	upc_id: Optional[str] = None
+	discogs_artist_id: Optional[str] = None
+
+
+class Track(BaseModel):
 	id: int = None
-	name: str = None
-	
-class User(VMLAgent):
-	email: EmailStr = None
-	id_at_source: str = None
-	source: str = None
+	name: str
+	artist: Artist
+	artist_sec: Optional[Artist] = None
+	date: Optional[date]
+	musicbrainz_id: Optional[UUID4] = None
+	isrc_id: Optional[str] = None
+	spotify_id: Optional[str] = None
+	upc_id: Optional[str] = None
 
-class Artist(VMLAgent):
-	music_brainz_id: UUID4 = None
-	active_from: datetime = None
-	active_to: datetime = None
 
-class AIAgent(VMLAgent):
-	unique_model_name: str
-
-class VMLItem(BaseModel, ABC):
+class Album(BaseModel):
 	id: int = None	
-	title: str
-	pass
+	name: str	
+	artist: Artist
+	artist_sec: Optional[Artist] = None
+	tracklist: Optional[list[Track]] = []
+	date: Optional[date]
+	label: Optional[str] = None
+	release_type: Optional[ReleaseTypeEnum] = None
+	musicbrainz_id: Optional[UUID4] = None
+	isrc_id: Optional[str] = None
+	spotify_id: Optional[str] = None
+	upc_id: Optional[str] = None
+	discogs_release_id: Optional[str] = None
 
-class Genre(VMLItem):
-	music_brainz_id: UUID4 = None
 
-class Album(VMLItem):
-	music_brainz_id: UUID4 = None
-	release_date: datetime = None
-	artist: list[Artist]
-	release_type: str
+class Person(BaseModel):
+	user_id_on_system: Optional[int] = None
+	name: Optional[str] = None
+	id_at_source: str
+	source: SourcesEnum
 
-class Playlist(VMLItem):
-	curator: VMLAgent
 
-class UserLibrary(VMLItem):
-	owner: User
-	artists: list[Artist]
-	playlists: list[Playlist]
-	albums: list[Album]
+class Playlist(BaseModel):
+	id: int = None
+	name: str
+	creator: Person
+	tracklist: Optional[list[Track]] = []
+	description: Optional[str] = None
+	date: Optional[date] = None
+	id_at_source: Optional[str] = None
+	source: Optional[SourcesEnum] = None
 
-class Track(VMLItem):
-	artist: list[Artist]
-	release_date: datetime
-	label: str = None
+
+class AIPlaylist(Playlist):
+	ai_model: AIAgentEnum
+	ai_model_setup: Optional[str] = None
+
+
+class Genre(BaseModel):
+	name: str	
+	musicbrainz_id: Optional[UUID4] = None
+
+
+class UserLibrary(BaseModel):
+	id: int = None	
+	artists: Optional[list[Artist]] = []
+	playlists: Optional[list[Playlist]] = []
+	albums: Optional[list[Album]] = []
+	genres: Optional[list[Genre]] = []
+
+	def add(self, item:BaseModel) -> None:
+		if isinstance(item, Artist):
+			self.artists.append(item)
+			#self._add_artist(item)
+		elif isinstance(item, Playlist):
+			self.playlists.append(item)
+			#self._add_playlist(item)
+		elif isinstance(item, Album):
+			self.albums.append(item)
+			#self._add_album(item)
+		elif isinstance(item, Genre):
+			self.genres.append(item)
+			#self._add_genre(item)
+
+
+class User(BaseModel):
+	id: Optional[int] = None
+	name: Optional[str] = None
+	email: Optional[EmailStr] = None
+	library: Optional[UserLibrary] = UserLibrary()
+	id_at_source: Optional[str] = None
+	source: Optional[SourcesEnum] = None
+
+
+	def make_person(self) -> Person:
+		return Person(
+			_user_id_on_system=self.id,
+			name=self.name,
+			id_at_source=self.id_at_source,
+			source=self.source
+			)
+
+#class AbsUser(BaseModel, ABC):

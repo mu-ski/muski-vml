@@ -5,8 +5,8 @@ from enum import Enum
 
 from virtmulib.entities import Playlist, User, Track, Album, Artist
 
-class OnLoaderEnum(Enum):
-	Spotify = 'spotify'
+# class OnLoaderEnum(Enum):
+# 	spotify = 'spotify'
 
 class OnLoaderAuthError(Exception):
 	"User-defined exception class to wrap auth errors of onloaders."
@@ -21,25 +21,17 @@ class OnLoader(BaseModel, ABC):
 		pass
 
 	@abc.abstractmethod
-	def _get_playlists(self) -> list[Playlist]:
+	def _add_playlists(self) -> None:
 		pass
 
 	@abc.abstractmethod
-	def _get_albums(self) -> list[Album]:
-		pass
-
-	@abc.abstractmethod
-	def _get_liked_tracks(self) -> list[Track]:
+	def _add_albums(self) -> None:
 		pass
 	
 	@abc.abstractmethod
-	def _get_top_artist(self) -> list[Artist]:
+	def _add_tracks(self) -> None:
 		pass
 
 	@abc.abstractmethod
-	def _get_top_tracks(self) -> list[Track]:
-		pass
-
-	@abc.abstractmethod
-	def _get_followed_artists(self) -> list[Artist]:
+	def _add_artists(self) -> None:
 		pass
