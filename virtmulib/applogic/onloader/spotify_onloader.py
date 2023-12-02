@@ -61,11 +61,13 @@ class SpotifyOnLoader(OnLoader, arbitrary_types_allowed=True):
 		pls_shallow = self._get_playlists_shallow()
 
 		#pls_deep = self._get_tracklist_of_playlist(pl)
-		pls_deep = [self._insert_tracklist_into_playlist(p) for p in pls_shallow]
+		
+		pls_deep = self._insert_tracklist_into_playlist(pls_shallow[0])
+		#pls_deep = [self._insert_tracklist_into_playlist(p) for p in pls_shallow]
 		
 		#TODO: if playlist exists load it instead
 		
-		print(pls_deep[0].model_dump_json(exclude_defaults=True))
+		print(pls_deep.model_dump_json(exclude_defaults=True))
 		
 		#pl_obj = self._get_playlist_as_obj(pl_dict)
 
@@ -80,14 +82,15 @@ class SpotifyOnLoader(OnLoader, arbitrary_types_allowed=True):
 			playlists.extend(
 				[self._format_as_playlist_shallow(i) for i in res.get('items')]
 			)
+			# TESTING! REMOVE AFTER
+			return playlists
 		return playlists
 
 	def _format_as_playlist_shallow(self, item: str) -> Playlist:
 		pl = {}
 		pl['name'] = item.get('name')
 		pl['description'] = item.get('description')
-		pl['id_at_source'] = item.get('id')
-		pl['source'] = SourcesEnum.spotify
+		pl['ext_ids'] = {'spotify': item.get('id')}
 
 		#TODO: if creator exists, load object rather than create
 		pl['creator'] = Person(
@@ -109,7 +112,7 @@ class SpotifyOnLoader(OnLoader, arbitrary_types_allowed=True):
 		for offset in range(0, 2000, 100):
 			res = self._c(
 				self._sp.playlist_items,
-					{'playlist_id': playlist.id_at_source, 
+					{'playlist_id': playlist.ext_ids.spotify, 
 					'fields': fields, 
 					'limit': 100, 
 					'offset': offset, 
@@ -134,8 +137,8 @@ class SpotifyOnLoader(OnLoader, arbitrary_types_allowed=True):
 				name=al.get('name'),
 				date=SimpleDate(al.get('release_date')).dt,
 				artist=artist,
-				id_at_source=al.get('id'),
-				source=SourcesEnum.spotify)
+				ext_ids=ExternalIDs(spotify=al.get('id'))
+			)
 		
 		# Albums of tracks of playlists are not stricly part of the users lib, 
 		# call it "extended lib" if you may. Anyway, we should handle it differently
@@ -148,21 +151,22 @@ class SpotifyOnLoader(OnLoader, arbitrary_types_allowed=True):
 				artist=artist,
 				artist_sec=artist_sec,
 				date=alb.date,
-				spotify_id=res.get('id')
+				ext_ids=ExternalIDs(spotify=res.get('id'))
 			)
 
 		if (eid := res.get('external_ids')) is not None:
-			tr.id_upc = eid.get('upc')
-			tr.id_isrc = eid.get('isrc')
+			tr.ext_ids.upc = eid.get('upc')
+			tr.ext_ids.isrc = eid.get('isrc')
 
+		# TODO: should this be done here?
+		# 		Or should it be left to be added with the rest of the tracks of the album?
 		alb.tracklist.append(tr)
 		
 		return tr
 
 	def _format_as_artist(self, art: dict) -> Artist:
 		return Artist(
-			id_at_source=art.get('id'), 
-			source=SourcesEnum.spotify,
+			ext_ids=ExternalIDs(spotify=art.get('id')),
 			name=art.get('name'))
 
 	def get_albums(self) -> list[Album]:
