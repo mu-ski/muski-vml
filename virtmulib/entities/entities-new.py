@@ -153,7 +153,7 @@ class Person(BaseModel):
 
 class User(Person):
 	email: EmailStr
-	def make_person(self) -> Person:
+	def  (self) -> Person:
 		return Person(
 			**ob.model_dump(exclude='email')
 		)

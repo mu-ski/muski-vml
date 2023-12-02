@@ -93,7 +93,7 @@ class SpotifyOnLoader(OnLoader, arbitrary_types_allowed=True):
 		pl['ext_ids'] = {'spotify': item.get('id')}
 
 		#TODO: if creator exists, load object rather than create
-		pl['creator'] = Person(
+		pl['creator'] = User(
 			name=item.get('owner').get('display_name'),
 			ext_ids=ExternalIDs(spotify=item.get('owner').get('id'))
 		)

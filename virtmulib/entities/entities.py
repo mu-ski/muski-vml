@@ -69,7 +69,7 @@ class ExternalIDs(BaseModel):
 	spotify: Optional[str] = None
 
 
-class MusicThing(BaseModel, ABC):
+class VMLThing(BaseModel, ABC):
 	id: Optional[PyObjectId] = Field(alias="_id", default=None)
 	name: str
 	genres: Optional[list[Genre]] = None
@@ -81,20 +81,20 @@ class MusicThing(BaseModel, ABC):
 	class Config:
 		validate_assignment = True
 
-class Artist(MusicThing):
+class Artist(VMLThing):
 	#active_from: Optional[date] = None
 	#active_to: Optional[date] = None
 	albums: Optional[list['Album']] = None
 	tracks: Optional[list['Track']] = None
 
 
-class Track(MusicThing):
+class Track(VMLThing):
 	artist: Artist
 	artist_sec: Optional[Artist] = None
 	album_ids: Optional[list[PyObjectId]] = []
 
 
-class Album(MusicThing):
+class Album(VMLThing):
 	artist: Artist
 	artist_sec: Optional[Artist] = None
 	tracklist: Optional[list[Track]] = []
@@ -102,11 +102,12 @@ class Album(MusicThing):
 	release_type: Optional[ReleaseTypeEnum] = None
 
 
-class Person(BaseModel):
-	id: Optional[PyObjectId] = Field(alias="_id", default=None)
-	name: Optional[str] = None
-	ext_ids: Optional[ExternalIDs] = ExternalIDs()
-	music_model: Optional[MusicModel] = None
+class User(VMLThing):
+	#id: Optional[PyObjectId] = Field(alias="_id", default=None)
+	#name: Optional[str] = None
+	email: Optional[EmailStr] = None
+	#ext_ids: Optional[ExternalIDs] = ExternalIDs()
+	#music_model: Optional[MusicModel] = None
 	artists: Optional[list[Artist]] = []
 	playlists: Optional[list['Playlist']] = []
 	albums: Optional[list[Album]] = []
@@ -116,18 +117,9 @@ class Person(BaseModel):
 	class Config:
 		validate_assignment = True
 
-class Playlist(MusicThing):
-	creator: Person
+
+class Playlist(VMLThing):
+	creator: User
 	ai_agent_setup: Optional[AIAgentSetup] = None
 	tracklist: Optional[list[Track]] = []
 	description: Optional[str] = None
-
-
-class User(Person):
-	email: Optional[EmailStr] = None
-
-	class Config:
-		validate_assignment = True
-
-	def make_person(self) -> Person:
-		return Person(self.model_dump(exclude='email'))
