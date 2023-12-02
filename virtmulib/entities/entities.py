@@ -53,6 +53,14 @@ class AIAgentSetup(BaseModel):
 	setup: Optional[str] = None
 
 
+# class IDSources(Enum):
+# 	musicbrainz = 'musicbrainz'
+# 	upc = 'upc'
+# 	isrc = 'isrc'
+# 	discogs = 'discogs'
+# 	spotify = 'spotify'
+
+
 class ExternalIDs(BaseModel):
 	musicbrainz: Optional[UUID4] = None
 	upc: Optional[str] = None
@@ -97,8 +105,13 @@ class Album(MusicThing):
 class Person(BaseModel):
 	id: Optional[PyObjectId] = Field(alias="_id", default=None)
 	name: Optional[str] = None
-	id_at_source: str
-	source: SourcesEnum
+	ext_ids: Optional[ExternalIDs] = ExternalIDs()
+	music_model: Optional[MusicModel] = None
+	artists: Optional[list[Artist]] = []
+	playlists: Optional[list['Playlist']] = []
+	albums: Optional[list[Album]] = []
+	tracks: Optional[list[Track]] = []
+	genres: Optional[list[Genre]] = []
 	
 	class Config:
 		validate_assignment = True
@@ -110,26 +123,11 @@ class Playlist(MusicThing):
 	description: Optional[str] = None
 
 
-class User(BaseModel):
+class User(Person):
 	email: Optional[EmailStr] = None
-	id: Optional[PyObjectId] = Field(alias="_id", default=None)
-	name: Optional[str] = None
-	id_at_source: Optional[str] = None
-	source: Optional[SourcesEnum] = None
-	music_model: Optional[MusicModel] = None
-	artists: Optional[list[Artist]] = []
-	playlists: Optional[list[Playlist]] = []
-	albums: Optional[list[Album]] = []
-	tracks: Optional[list[Track]] = []
-	genres: Optional[list[Genre]] = []
 
 	class Config:
 		validate_assignment = True
 
 	def make_person(self) -> Person:
-		return Person(
-			_user_id_on_system=self.id,
-			name=self.name,
-			id_at_source=self.id_at_source,
-			source=self.source
-			)
+		return Person(self.model_dump(exclude='email'))

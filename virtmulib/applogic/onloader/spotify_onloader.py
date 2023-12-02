@@ -46,10 +46,10 @@ class SpotifyOnLoader(OnLoader, arbitrary_types_allowed=True):
 		# TODO: when using persistence, first check if user exists 
 		# 		if yes, then retrieve object, else create new obj
 		self._user = User(
-			email=us.get('email'),
-			name=us.get('display_name'),
-			id_at_source=us.get('id'),
-			source=SourcesEnum.spotify)
+				email=us.get('email'),
+				name=us.get('display_name'),
+				ext_ids=ExternalIDs(spotify=us.get('id'))
+			)
 		return self._user.name
 
 
@@ -94,9 +94,8 @@ class SpotifyOnLoader(OnLoader, arbitrary_types_allowed=True):
 
 		#TODO: if creator exists, load object rather than create
 		pl['creator'] = Person(
-			name = item.get('owner').get('display_name'),
-			id_at_source=item.get('owner').get('id'),
-			source=SourcesEnum.spotify
+			name=item.get('owner').get('display_name'),
+			ext_ids=ExternalIDs(spotify=item.get('owner').get('id'))
 		)
 		return Playlist(**pl)
 
