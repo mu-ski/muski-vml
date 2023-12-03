@@ -1,6 +1,6 @@
 from abc import ABC
 from typing import Optional
-from pydantic import BaseModel, EmailStr, UUID4, Field, ConfigDict
+from pydantic import BaseModel, EmailStr, UUID4, Field, ConfigDict, HttpUrl 
 
 from virtmulib.entities.misc_definitions import *
 
@@ -16,15 +16,17 @@ class ExternalIDs(BaseModel):
 
 
 class VMLThing(BaseModel, ABC):
-	model_config = ConfigDict(extra='allow', validate_assignment=True)
+	model_config = ConfigDict(validate_assignment=True)
 	
 	id: Optional[PyObjectId] = Field(alias="_id", default=None)
 	name: str
+	thumb: Optional[HttpUrl] = None
 	genres: Optional[list['Genre']] = None
-	date: Optional[datetime.date] = None
+	date: Optional[datetime.date] = datetime.date(3000,1,1)
 	popularity: Optional[int] = None
-	music_model: Optional[MusicModel] = None
+	model: Optional[MusicModel] = None
 	ext_ids: Optional[ExternalIDs] = ExternalIDs()
+
 
 
 class Genre(VMLThing):
@@ -39,7 +41,9 @@ class Artist(VMLThing):
 class Track(VMLThing):
 	artist: Artist
 	artist_sec: Optional[Artist] = None
-	albums: Optional[list['Album']] = None
+	albums: Optional[list['Album']] = []
+	playlists: Optional[list['Playlist']] = []
+	
 
 
 class Album(VMLThing):
@@ -57,26 +61,29 @@ class Playlist(VMLThing):
 	description: Optional[str] = None
 
 
-class User(VMLThing):
-	email: Optional[EmailStr] = None
-	org: Optional['MusicOrganization'] = None
 
+class Library(VMLThing):
+	#TODO: use bigtree instead
+	# or find something that works with pydantic out of the box
+	parent: Optional['Library'] = None
+	children: Optional[list['Library']] = []
 
-class MusicLibrary(VMLThing):
 	artists: Optional[list[Artist]] = []
 	playlists: Optional[list[Playlist]] = []
 	albums: Optional[list[Album]] = []
 	tracks: Optional[list[Track]] = []
-	genres: Optional[list[Genre]] = []	
+	genres: Optional[list[Genre]] = []
 
+	# def init(self, artists, playlists, albums, tracks):
+	# 	"""Given a set of lists of music items, initialize the object with thin copies of them"""
+	# 	pass
 
-class MusicOrganization(VMLThing):
-	#TODO: use bigtree instead
-	# or find something that works with pydantic out of the box
-	name: str
-	parent: Optional['MusicOrganization'] = None
-	children: Optional[list['MusicOrganization']] = []
-	org: Optional['MusicLibrary'] = None
-
-	def add_child(self, node: 'MusicOrganization'):
+	def add_child(self, node: 'Library'):
 		children.append(node)
+
+
+class User(VMLThing):
+	email: Optional[EmailStr] = None
+	lib: Optional[Library] = None
+
+

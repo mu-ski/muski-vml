@@ -73,8 +73,7 @@ class SpotifyOnLoader(OnLoader, arbitrary_types_allowed=True):
 				release_type=ReleaseTypeEnum.get_release_enum_by_name(typ),
 				spotify_id=item.get('id')
 			)
-		trklst = self._get_a_list_of_tracks(item.get('tracks'), al=al)
-		al.tracklist = trklst
+		
 		return al
 
 	def _add_tracks(self) -> None:
@@ -141,9 +140,6 @@ class SpotifyOnLoader(OnLoader, arbitrary_types_allowed=True):
 			trls.append(self._get_track(r, al=al))
 		return trls
 
-	def _get_track(self, res, al=None) -> Track:
-		if 'track' in res.keys():
-			res = res.get('track')
 		artist, artist_sec = self._get_primary_sec_artist(res.get('artists'))
 
 		if al == None and res.get('album') is not None:

@@ -3,6 +3,16 @@ from enum import Enum
 from typing import Optional
 from pydantic import BaseModel, ConfigDict
 
+
+class MusicModelAttributeEnum(Enum):
+	pass
+
+
+class MusicModel(BaseModel):
+	model_config = ConfigDict(extra='allow', validate_assignment=True)
+	pass
+
+
 class SimpleDate:
 	dt: datetime.date
 	def __init__(self, dt: str) -> list:
@@ -12,18 +22,27 @@ class SimpleDate:
 			lis.extend(default_date[len(lis):])
 		self.dt=datetime.date(*lis) 
 
+
 class AIAgentEnum(Enum):
 	llamma_2_70gb = 'llamma_2_70gb'
+
 
 class ReleaseTypeEnum(Enum):
 	album = 'album'
 	single = 'single'
 	compilation = 'compilation'
 
-class MusicModel(BaseModel):
-	model_config = ConfigDict(extra='allow',validate_assignment=True)
-	
-	pass
+	@classmethod
+	def get_release_enum_by_name(cls, name:str) -> 'ReleaseTypeEnum':
+		nm = name.lower().strip()
+		if nm.find('album') > -1:
+			return ReleaseTypeEnum.album
+		elif nm.find('single') > -1:
+			return ReleaseTypeEnum.single
+		elif nm.find('compilation') > -1:
+			return ReleaseTypeEnum.compilation
+		return None
+
 
 class AIAgentSetup(BaseModel):
 	model_config = ConfigDict(extra='allow',validate_assignment=True)
