@@ -26,7 +26,7 @@ class VMLThing(BaseModel, ABC):
 	popularity: Optional[int] = None
 	model: Optional[MusicModel] = None
 	ext_ids: Optional[ExternalIDs] = ExternalIDs()
-
+	related: Optional[list['VMLThing']] = []
 
 
 class Genre(VMLThing):
@@ -85,5 +85,6 @@ class Library(VMLThing):
 class User(VMLThing):
 	email: Optional[EmailStr] = None
 	lib: Optional[Library] = None
+	lib_extended: Optional[Library] = None
 
 

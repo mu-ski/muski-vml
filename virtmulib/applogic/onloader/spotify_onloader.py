@@ -7,8 +7,6 @@ from spotipy.oauth2 import SpotifyOAuth, SpotifyOauthError, SpotifyPKCE, CacheFi
 from virtmulib.applogic.onloader import OnLoader
 from virtmulib.entities import *
 
-TEST = True
-
 SCOPES = ['user-library-read', 'user-follow-read', 'user-top-read',
 		'playlist-modify-public', 'playlist-read-private']
 
@@ -23,13 +21,12 @@ class SpotifyOnLoader(OnLoader, arbitrary_types_allowed=True):
 	_tracks_to_read: list[Track] = []
 	_artists_to_read: list[Artist] = []
 	_playlists_to_read: list[Playlist] = []
-
 	_t: time = None
 	_cnt: int = 0
 
 
 	def _c(self, func, inp=None, params=None):
-		"""Routing all the API calls through this for easily  managing rate limits"""
+		"""Routing all the API calls through this for easily managing rate limits"""
 		if self._t is None:
 			self._t = time.time()
 		self._cnt += 1
@@ -43,9 +40,8 @@ class SpotifyOnLoader(OnLoader, arbitrary_types_allowed=True):
 			if inp is None:
 				return func(**params)
 			else:
+				# TODO: need to check if this condition ever occurs
 				pass
-				#return func(inp, **params)
-		#return func(**params)
 
 
 	def model_post_init(self, __context):
@@ -71,70 +67,77 @@ class SpotifyOnLoader(OnLoader, arbitrary_types_allowed=True):
 
 
 	def get_user_data(self) -> None:
-		self.get_playlists()
-		
-		print()
-		print()
-		
-		self.get_albums()
+		pl = self.get_playlists()
+
+		print(pl[0].model_dump_json(exclude_defaults=True))
+
+		albs = self.get_albums()
+
+		print(albs[0].model_dump_json(exclude_defaults=True))
+
+		trs = self.get_tracks()
+
+		print(trs[0].model_dump_json(exclude_defaults=True))
+
+		self.get_artists()
 
 
-	def get_playlists(self) -> list[Playlist]:
-		pls_shallow = self._get_user_playlists_shallow()
-
-		#pls_deep = self._get_tracklist_of_playlist(pl)
-		
-		if TEST:
-			pls_deep = self._insert_tracklist_into_playlist(pls_shallow[0])
-		else:
-			pls_deep = [self._insert_tracklist_into_playlist(p) for p in pls_shallow]
-		
-		#TODO: if playlist exists load it instead
-		
-		print(pls_deep.model_dump_json(exclude_defaults=True))
-		
-		#pl_obj = self._get_playlist_as_obj(pl_dict)
-
+	def get_tracks(self) -> list[Track]:		
+		tracks = self._get(self._sp.current_user_top_tracks, self._format_as_track)
+		tracks.extend(self._get(self._sp.current_user_saved_tracks, self._format_as_track))
+		return tracks
 
 	def get_albums(self) -> list[Album]:
-		albs = self._get_albums()
-		print(albs[0].model_dump_json(exclude_unset=True, exclude_defaults=True, exclude_none=True))
+		return self._get(self._sp.current_user_saved_albums, self._format_as_album)
+
+	def get_playlists(self) -> list[Playlist]:
+		return self._get(self._sp.current_user_playlists, self._format_as_playlist)
 
 
-	def _get_albums(self) -> list[Album]:
-		albs = []
+	def get_artists(self) -> list[Artist]:
+		return self._get(self._sp.current_user_top_artists, self._format_as_artist)
+
+	def get_related_artists(self, art_id: str) -> list[Artist]:
+		# artist_related_artists(artist_id)
+		pass
+
+	def _get(self, func1, func2) -> list[VMLThing]:
+		items = []
 		for offset in range(0, 2000, 20):
 			res = self._c(
-					self._sp.current_user_saved_albums,
-					params={'limit':20, 'offset':offset}
+					func1,
+					params={'limit': 20, 'offset': offset}
 				)
-			albs.extend([self._read_album(alb) for alb in res.get('items')])
-		return albs
-			
-	def _read_album(self, item: dict) -> Album:
+			if res['items'] == [] and res['next'] is None:
+				break
+			items.extend([func2(item) for item in res.get('items')])
+		return items
+
+
+	def _format_as_album(self, item: dict) -> Album:
 		if 'album' in item.keys():
 			item = item.get('album')
+
 		alb = {}
-		
 		arts = item.get('artists')
 		alb['artist'] = self._format_as_artist(arts[0])
 		alb['artist_sec'] = self._format_as_artist(arts[1]) if len(arts) > 1 else None
-
 		alb['release_type'] = ReleaseTypeEnum.get_release_enum_by_name(item.get('album_type'))
 		alb['label'] = item.get('label')
 		alb['name'] = item.get('name')
 		alb['date'] = SimpleDate(item.get('release_date')).dt
-
 		imgs = item.get('images')
 		alb['thumb'] = imgs[0].get('url') if imgs is not None and len(imgs) != 0 else None
+		
+		if 'genres' in item.keys():
+			grs = [Genre(name=g) for g in item['genres']]
+			alb['genres'] = grs
 
 		alb_obj = self._create_or_load_album(alb)
 		
 		if alb_obj.tracklist == []:
 			items = item.get('tracks').get('items')
-			#print(json.dumps())	
 			trklst = [self._format_as_track(itm, alb_obj) for itm in items]
-			#trklst = self._get_a_list_of_tracks(item.get('tracks'))
 			alb_obj.tracklist = trklst
 
 		return alb_obj
@@ -150,21 +153,7 @@ class SpotifyOnLoader(OnLoader, arbitrary_types_allowed=True):
 		return [self._create_or_load_track(tr_data) for tr_data in trs_data]
 
 
-	def _get_user_playlists_shallow(self) -> list[Playlist]:
-		playlists = []
-		for offset in range(0, 2000, 50):
-			res = self._c(
-					self._sp.current_user_playlists, 
-					params={'limit':50, 'offset':offset}
-				)
-			playlists.extend(
-				[self._format_as_playlist_shallow(i) for i in res.get('items')]
-			)
-			if TEST:
-				return playlists
-		return playlists
-
-	def _format_as_playlist_shallow(self, item: str) -> Playlist:
+	def _format_as_playlist(self, item: str) -> Playlist:
 		pl = {}
 		pl['name'] = item.get('name')
 		pl['description'] = item.get('description')
@@ -178,7 +167,10 @@ class SpotifyOnLoader(OnLoader, arbitrary_types_allowed=True):
 							'ext_ids': ExternalIDs(spotify=item.get('owner').get('id'))
 						})
 
-		return Playlist(**pl)
+		pl_o = self._create_or_load_playlist(pl)
+		self._insert_tracklist_into_playlist(pl_o)
+		return pl_o
+
 
 	def _insert_tracklist_into_playlist(self, playlist: Playlist) -> Playlist:
 		tr_ls = []
@@ -191,13 +183,19 @@ class SpotifyOnLoader(OnLoader, arbitrary_types_allowed=True):
 						'additional_types': ('track',)
 					}
 				)
+			if res['items'] == [] and res['next'] is None:
+				break
 			tracks = res.get('items')
-			tracks = [self._format_as_track(tr.get('track')) for tr in tracks]
+			tracks = [self._format_as_track(tr) for tr in tracks]
 			tr_ls.extend(tracks)
 		playlist.tracklist = tr_ls
 		return playlist
 
+
 	def _format_as_track(self, res: dict, alb=None) -> Track:
+		if 'track' in res.keys():
+			res = res.get('track')
+
 		tr = {}
 		tr['name'] = res.get('name')
 		arts = res.get('artists')
@@ -208,12 +206,10 @@ class SpotifyOnLoader(OnLoader, arbitrary_types_allowed=True):
 		if 'external_ids' in res.keys():
 			tr['ext_ids'].upc = res.get('external_ids').get('upc')
 			tr['ext_ids'].isrc = res.get('external_ids').get('isrc')
-		
-			# alb = self._read_album(res.get('album'))
-			# Albums of tracks of playlists are not stricly part of the users lib, 
-			# call it "extended lib" if you may. Anyway, we should handle it differently
-			#self._add_to_extended_library(alb)
-	
+			
+		if 'images' in res.keys():
+			tr['thumb'] = res.get('images')[0].get('url')
+
 		tr = self._create_or_load_track(tr)
 		
 		if alb is None and 'album' in res.keys():
@@ -229,32 +225,31 @@ class SpotifyOnLoader(OnLoader, arbitrary_types_allowed=True):
 				tr.date = alb.date
 
 			tr.albums.append(alb)
-
 			self._add_to_to_read(alb)
-
-		# # TODO: spotify uses the album date as track date, but this is not precise.
-		# # Query external source for track date
-		# tr=Track(
-		# 		name=res.get('name'),
-		# 		artist=artist,
-		# 		artist_sec=artist_sec,
-		# 		date=date,
-		# 		ext_ids=ExternalIDs(spotify=res.get('id'))
-		# 	)
 		return tr
 
-	def _format_as_artist(self, item:dict) -> Artist:
-		return self._create_or_load_artist({
+
+	def _format_as_artist(self, item: dict) -> Artist:
+		art = {
 			'name': item['name'],
 			'ext_ids': ExternalIDs(spotify=item.get('id'))
-		})
+		}
+		if 'genres' in item.keys():
+			grs = [Genre(name=g) for g in item['genres']]
+			art['genres'] = grs
+		if 'images' in item.keys():
+			art['thumb'] = item['images'][0]['url']
+		return self._create_or_load_artist(art)
+
 
 	def _format_as_user(self, item: dict) -> User:
 		return self._create_or_load_user(item)
+
 	
 	def _add_to_extended_library(self, alb: Album) -> None:
 		# TODO: Add a cache and only append if not in cache
 		self._albums.append(alb)
+
 
 	def _add_to_to_read(self, obj: VMLThing) -> None:
 		# TODO: Add a cache and only append if not in cache
@@ -268,13 +263,11 @@ class SpotifyOnLoader(OnLoader, arbitrary_types_allowed=True):
 			self._tracks_to_read.append(obj)
 
 
-
 	def _create_or_load_track(self, data: dict) -> Track:
 		return Track(**data)
 
 	def _create_or_load_album(self, data: dict) -> Album:
 		return Album(**data)
-
 
 	def _create_or_load_artist(self, data: dict) -> Artist:
 		return Artist(**data)
@@ -283,13 +276,9 @@ class SpotifyOnLoader(OnLoader, arbitrary_types_allowed=True):
 		return User(**data)
 
 	def _create_or_load_playlist(self, data: dict) -> Playlist:
-		return playlist(**data)
+		return Playlist(**data)
 
-	def get_tracks(self) -> list[Track]:
-		pass
 
-	def get_artists(self) -> list[Artist]:
-		pass
 
 
 #Get Tracks' Audio Features
