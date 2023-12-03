@@ -2,7 +2,6 @@ from abc import ABC
 from typing import Optional
 from pydantic import BaseModel, EmailStr, UUID4, Field, ConfigDict
 
-from virtmulib.entities.py_object_id import PyObjectId
 from virtmulib.entities.misc_definitions import *
 
 
