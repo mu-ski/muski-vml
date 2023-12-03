@@ -1,67 +1,14 @@
 from abc import ABC
-import re
-import datetime
 from typing import Optional
-from enum import Enum
-from pydantic import BaseModel, EmailStr, UUID4, Field
+from pydantic import BaseModel, EmailStr, UUID4, Field, ConfigDict
 
 from virtmulib.entities.py_object_id import PyObjectId
-
-class SimpleDate:
-	dt: datetime.date
-	def __init__(self, dt: str) -> list:
-		lis = [int(i) for i in dt.split('-')]
-		if len(lis) < 3:
-			default_date = [1900, 1, 1]
-			lis.extend(default_date[len(lis):])
-		self.dt=datetime.date(*lis) 
-
-
-class AIAgentEnum(Enum):
-	llamma_2_70gb = 'llamma_2_70gb'
-
-class ReleaseTypeEnum(Enum):
-	album = 'album'
-	single = 'single'
-	compilation = 'compilation'
-
-	@classmethod
-	def get_release_enum_by_name(cls, name:str) -> 'ReleaseTypeEnum':
-		nm = name.lower().strip()
-		if nm.find('album') > -1:
-			return ReleaseTypeEnum.album
-		elif nm.find('single') > -1:
-			return ReleaseTypeEnum.single
-		elif nm.find('compilation') > -1:
-			return ReleaseTypeEnum.compilation
-		return None
-
-class SourcesEnum(Enum):
-	spotify = 'spotify'
-
-class Genre(BaseModel):
-	id: Optional[PyObjectId] = Field(alias="_id", default=None)
-	name: str	
-	musicbrainz_id: Optional[UUID4] = None
-
-class MusicModel(BaseModel):
-	pass
-
-
-class AIAgentSetup(BaseModel):
-	agent: AIAgentEnum
-	setup: Optional[str] = None
-
-
-# class IDSources(Enum):
-# 	musicbrainz = 'musicbrainz'
-# 	upc = 'upc'
-# 	isrc = 'isrc'
-# 	discogs = 'discogs'
-# 	spotify = 'spotify'
+from virtmulib.entities.misc_definitions import *
 
 
 class ExternalIDs(BaseModel):
+	model_config = ConfigDict(extra='allow', validate_assignment=True)
+
 	musicbrainz: Optional[UUID4] = None
 	upc: Optional[str] = None
 	isrc: Optional[str] = None
@@ -70,20 +17,22 @@ class ExternalIDs(BaseModel):
 
 
 class VMLThing(BaseModel, ABC):
+	model_config = ConfigDict(extra='allow', validate_assignment=True)
+	
 	id: Optional[PyObjectId] = Field(alias="_id", default=None)
 	name: str
-	genres: Optional[list[Genre]] = None
+	genres: Optional[list['Genre']] = None
 	date: Optional[datetime.date] = None
 	popularity: Optional[int] = None
 	music_model: Optional[MusicModel] = None
 	ext_ids: Optional[ExternalIDs] = ExternalIDs()
 
-	class Config:
-		validate_assignment = True
+
+class Genre(VMLThing):
+	pass
+
 
 class Artist(VMLThing):
-	#active_from: Optional[date] = None
-	#active_to: Optional[date] = None
 	albums: Optional[list['Album']] = None
 	tracks: Optional[list['Track']] = None
 
@@ -91,7 +40,7 @@ class Artist(VMLThing):
 class Track(VMLThing):
 	artist: Artist
 	artist_sec: Optional[Artist] = None
-	album_ids: Optional[list[PyObjectId]] = []
+	albums: Optional[list['Album']] = None
 
 
 class Album(VMLThing):
@@ -102,24 +51,34 @@ class Album(VMLThing):
 	release_type: Optional[ReleaseTypeEnum] = None
 
 
-class User(VMLThing):
-	#id: Optional[PyObjectId] = Field(alias="_id", default=None)
-	#name: Optional[str] = None
-	email: Optional[EmailStr] = None
-	#ext_ids: Optional[ExternalIDs] = ExternalIDs()
-	#music_model: Optional[MusicModel] = None
-	artists: Optional[list[Artist]] = []
-	playlists: Optional[list['Playlist']] = []
-	albums: Optional[list[Album]] = []
-	tracks: Optional[list[Track]] = []
-	genres: Optional[list[Genre]] = []
-	
-	class Config:
-		validate_assignment = True
-
-
 class Playlist(VMLThing):
-	creator: User
+	creator: 'User'
 	ai_agent_setup: Optional[AIAgentSetup] = None
 	tracklist: Optional[list[Track]] = []
 	description: Optional[str] = None
+
+
+class User(VMLThing):
+	email: Optional[EmailStr] = None
+	org: Optional['MusicOrganization'] = None
+
+
+class MusicLibrary(VMLThing):
+	model_config = ConfigDict(extra='allow', validate_assignment=True)
+
+	artists: Optional[list[Artist]] = []
+	playlists: Optional[list[Playlist]] = []
+	albums: Optional[list[Album]] = []
+	tracks: Optional[list[Track]] = []
+	genres: Optional[list[Genre]] = []	
+
+
+class MusicOrganization(VMLThing):
+	#TODO: use bigtree instead
+	name: str
+	parent: Optional['MusicOrganization'] = None
+	children: Optional[list['MusicOrganization']] = []
+	org: Optional['MusicLibrary'] = None
+
+	def add_child(self, node: 'MusicOrganization'):
+		children.append(node)

@@ -10,6 +10,7 @@ from virtmulib.entities import *
 # 	name = usecases.LoginSignup()(SpotifyOnLoader)
 # 	assert name is not None and name != ''
 
+
 def test_get_user_data_spotify() -> User:
 	user = usecases.GetUserData()(SpotifyOnLoader)
 	assert True

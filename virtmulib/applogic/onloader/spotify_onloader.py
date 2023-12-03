@@ -7,6 +7,7 @@ from spotipy.oauth2 import SpotifyOAuth, SpotifyOauthError, SpotifyPKCE, CacheFi
 from virtmulib.applogic.onloader import OnLoader
 from virtmulib.entities import *
 
+TEST = True
 
 SCOPES = ['user-library-read', 'user-follow-read', 'user-top-read',
 		'playlist-modify-public', 'playlist-read-private']
@@ -62,8 +63,10 @@ class SpotifyOnLoader(OnLoader, arbitrary_types_allowed=True):
 
 		#pls_deep = self._get_tracklist_of_playlist(pl)
 		
-		pls_deep = self._insert_tracklist_into_playlist(pls_shallow[0])
-		#pls_deep = [self._insert_tracklist_into_playlist(p) for p in pls_shallow]
+		if TEST:
+			pls_deep = self._insert_tracklist_into_playlist(pls_shallow[0])
+		else:
+			pls_deep = [self._insert_tracklist_into_playlist(p) for p in pls_shallow]
 		
 		#TODO: if playlist exists load it instead
 		
@@ -82,8 +85,8 @@ class SpotifyOnLoader(OnLoader, arbitrary_types_allowed=True):
 			playlists.extend(
 				[self._format_as_playlist_shallow(i) for i in res.get('items')]
 			)
-			# TESTING! REMOVE AFTER
-			return playlists
+			if TEST:
+				return playlists
 		return playlists
 
 	def _format_as_playlist_shallow(self, item: str) -> Playlist:
