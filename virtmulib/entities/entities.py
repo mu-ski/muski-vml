@@ -63,8 +63,6 @@ class User(VMLThing):
 
 
 class MusicLibrary(VMLThing):
-	model_config = ConfigDict(extra='allow', validate_assignment=True)
-
 	artists: Optional[list[Artist]] = []
 	playlists: Optional[list[Playlist]] = []
 	albums: Optional[list[Album]] = []
@@ -74,6 +72,7 @@ class MusicLibrary(VMLThing):
 
 class MusicOrganization(VMLThing):
 	#TODO: use bigtree instead
+	# or find something that works with pydantic out of the box
 	name: str
 	parent: Optional['MusicOrganization'] = None
 	children: Optional[list['MusicOrganization']] = []
