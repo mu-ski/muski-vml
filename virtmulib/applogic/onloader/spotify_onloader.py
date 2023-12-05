@@ -7,6 +7,7 @@ from spotipy.oauth2 import SpotifyOAuth, SpotifyOauthError, SpotifyPKCE, CacheFi
 from virtmulib.applogic.onloader import OnLoader
 from virtmulib.entities import *
 
+TEST = True
 SCOPES = ['user-library-read', 'user-follow-read', 'user-top-read',
 		'playlist-modify-public', 'playlist-read-private']
 CNT: int = 0
@@ -17,7 +18,7 @@ class SpotifyOnLoader(OnLoader):
 	# _user: User = None
 	# _t: time = None
 
-	def call(func, params=None, inp=None):
+	def _call(func, params=None, inp=None):
 		"""Routing all the API calls through this for easily managing rate limits"""
 		global CNT
 		# if _t is None:
@@ -33,7 +34,27 @@ class SpotifyOnLoader(OnLoader):
 				return func(**params)
 			else:
 				return func(inp, **params)
+	
+	def call(func, params=None, inp=None):
+		res = SpotifyOnLoader._call(func, params=params, inp=inp)
+		# if TEST:
+		# 	print(json.dumps(res))
+		return res
 
+	def _get(spot_func, format_func, limit=20, inp=None, max=2000) -> list[VMLThing]:
+		if TEST:
+			limit = 2
+			max = 2
+		items = []
+		for offset in range(0, max, limit):
+			res = SpotifyOnLoader.call(
+					spot_func,
+					params={'limit': limit, 'offset': offset},
+					inp=inp
+				)
+			if res['items'] == []: break
+			items.extend([format_func(item) for item in res.get('items')])
+		return items
 
 	# def model_post_init(__context):
 	# 	login_signup()
@@ -53,37 +74,19 @@ class SpotifyOnLoader(OnLoader):
 			user = SpotifyOnLoader._format_as_user(sp.me())
 
 		pl = SpotifyOnLoader.get_playlists(sp)
-		print(pl[0].model_dump_json(exclude_defaults=True))
-
-		print()
-		print(f'num of calls: {CNT}')
-		print()
-
-
-		albs = SpotifyOnLoader.get_albums(sp)
-		print(albs[0].model_dump_json(exclude_defaults=True))
 		
-		print()
-		print(f'num of calls: {CNT}')
-		print()
+		albs = SpotifyOnLoader.get_albums(sp)
 
 		trs = SpotifyOnLoader.get_tracks(sp)
-		print(trs[0].model_dump_json(exclude_defaults=True))
-
-		print()
-		print(f'num of calls: {CNT}')
-		print()
-
+		
 		arts = SpotifyOnLoader.get_artists(sp)
-		if len(arts) > 0:
-			print(arts[0].model_dump_json(exclude_defaults=True))
 
-		print()
-		print(f'num of calls: {CNT}')
-		print()
+		user.lib = Library(playlists=pl, artists=arts, albums=albs, tracks=trs)
+		return user
 
 
-	def get_tracks(sp: Spotify) -> list[Track]:		
+	def get_tracks(sp: Spotify=None) -> list[Track]:
+		sp = SpotifyOnLoader.login_signup() if sp is None else sp
 		tracks = SpotifyOnLoader._get(
 						sp.current_user_top_tracks,
 						SpotifyOnLoader._format_as_track
@@ -96,13 +99,16 @@ class SpotifyOnLoader(OnLoader):
 				)
 		return tracks
 
-	def get_albums(sp: Spotify) -> list[Album]:
+	def get_albums(sp: Spotify=None) -> list[Album]:
+		sp = SpotifyOnLoader.login_signup() if sp is None else sp
 		return SpotifyOnLoader._get(
 					sp.current_user_saved_albums,
 					SpotifyOnLoader._format_as_album
 				)
 
-	def get_playlists(sp: Spotify) -> list[Playlist]:
+
+	def get_playlists(sp: Spotify=None) -> list[Playlist]:
+		sp = SpotifyOnLoader.login_signup() if sp is None else sp
 		pls = SpotifyOnLoader._get(
 					sp.current_user_playlists,
 					SpotifyOnLoader._format_as_playlist
@@ -115,30 +121,19 @@ class SpotifyOnLoader(OnLoader):
 							inp=pl.ext_ids.spotify,
 							limit=100
 						)
-					
 		return pls
 
-	def get_artists(sp: Spotify) -> list[Artist]:
+	def get_artists(sp: Spotify=None) -> list[Artist]:
+		sp = SpotifyOnLoader.login_signup() if sp is None else sp
 		return SpotifyOnLoader._get(
 					sp.current_user_top_artists,
 					SpotifyOnLoader._format_as_artist
 				)
 
+
 	def get_related_artists(art_id: str) -> list[Artist]:
 		# artist_related_artists(artist_id)
 		pass
-
-	def _get(spot_func, format_func, limit=20, inp=None) -> list[VMLThing]:
-		items = []
-		for offset in range(0, 2000, limit):
-			res = SpotifyOnLoader.call(
-					spot_func,
-					params={'limit': limit, 'offset': offset},
-					inp=inp
-				)
-			if res['items'] == []: break
-			items.extend([format_func(item) for item in res.get('items')])
-		return items
 
 	def _get_extended_library(lib: Library) -> Library:
 		pass
@@ -168,8 +163,8 @@ class SpotifyOnLoader(OnLoader):
 
 		if 'artists' in item.keys():
 			arts = item.get('artists')
-			it['artist'] = SpotifyOnLoader._format_as_artist(arts[0])
-			it['artist_sec'] = SpotifyOnLoader._format_as_artist(arts[1]) if len(arts) > 1 else None
+			it['artist'] = SpotifyOnLoader._format_common_fields(arts[0])
+			it['artist_sec'] = SpotifyOnLoader._format_common_fields(arts[1]) if len(arts) > 1 else None
 		return it
 
 
