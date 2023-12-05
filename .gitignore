@@ -5,6 +5,7 @@ __pycache__/
 
 temp.json
 .cache*
+*.bkp
 
 # C extensions
 *.so
