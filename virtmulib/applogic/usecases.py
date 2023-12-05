@@ -21,7 +21,7 @@ If the details of a use-case change, then some code in this layer will certainly
 """
 from pydantic import EmailStr
 
-from virtmulib.entities import User
+from virtmulib.entities import *
 from virtmulib.applogic.onloader import OnLoader, OnLoaderAuthError
 
 # class LoginSignup:
@@ -35,5 +35,37 @@ class GetUserData:
 	def __call__(self, onloader: type) -> None:
 		try:
 			return onloader.login_onload_user_data()
+		except OnLoaderAuthError as e:
+			print(str(e))
+
+
+class GetUserDataPlaylists:
+	def __call__(self, onloader: type) -> list[Playlist]:
+		try:
+			return onloader.get_playlists()
+		except OnLoaderAuthError as e:
+			print(str(e))
+
+
+class GetUserDataAlbums:
+	def __call__(self, onloader: type) -> list[Album]:
+		try:
+			return onloader.get_albums()
+		except OnLoaderAuthError as e:
+			print(str(e))
+
+
+
+class GetUserDataTracks:
+	def __call__(self, onloader: type) -> list[Track]:
+		try:
+			return onloader.get_tracks()
+		except OnLoaderAuthError as e:
+			print(str(e))
+
+class GetUserDataArtists:
+	def __call__(self, onloader: type) -> list[Artist]:
+		try:
+			return onloader.get_artists()
 		except OnLoaderAuthError as e:
 			print(str(e))

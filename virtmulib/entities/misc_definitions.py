@@ -20,7 +20,9 @@ class SimpleDate:
 		if len(lis) < 3:
 			default_date = [1900, 1, 1]
 			lis.extend(default_date[len(lis):])
-		self.dt=datetime.date(*lis) 
+		self.dt=datetime.date(*lis)
+	def __repr__() -> str:
+		return dt.isoformat()
 
 
 class AIAgentEnum(Enum):

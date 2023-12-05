@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from pydantic import BaseModel, EmailStr
 from enum import Enum
 
-from virtmulib.entities import Playlist, User, Track, Album, Artist, Library, VMLThing
+from virtmulib.entities import *
 
 class OnLoaderAuthError(Exception):
 	"User-defined exception class to wrap auth errors of onloaders."
