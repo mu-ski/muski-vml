@@ -41,8 +41,8 @@ class Artist(VMLThing):
 class Track(VMLThing):
 	artist: Artist
 	artist_sec: Optional[Artist] = None
-	albums: Optional[list['Album']] = []
-	playlists: Optional[list['Playlist']] = []
+	albums: Optional[list[PyObjectId]] = []
+	playlists: Optional[list[PyObjectId]] = []
 	
 
 
