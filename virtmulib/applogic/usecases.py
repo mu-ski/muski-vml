@@ -24,16 +24,16 @@ from pydantic import EmailStr
 from virtmulib.entities import User
 from virtmulib.applogic.onloader import OnLoader, OnLoaderAuthError
 
-class LoginSignup:
-	def __call__(self, onloader: OnLoader) -> EmailStr:
-		try:
-			return onloader().login_signup()
-		except OnLoaderAuthError as e:
-			print(str(e))
+# class LoginSignup:
+# 	def __call__(self, onloader: OnLoader) -> EmailStr:
+# 		try:
+# 			return onloader().login_signup()
+# 		except OnLoaderAuthError as e:
+# 			print(str(e))
 
 class GetUserData:
-	def __call__(self, onloader: OnLoader) -> None:
+	def __call__(self, onloader: type) -> None:
 		try:
-			return onloader().get_user_data()
+			return onloader.login_onload_user_data()
 		except OnLoaderAuthError as e:
 			print(str(e))
