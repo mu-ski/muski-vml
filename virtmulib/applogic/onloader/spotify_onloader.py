@@ -15,14 +15,7 @@ SCOPES = ['user-library-read', 'user-follow-read', 'user-top-read',
 class SpotifyOnLoader(OnLoader, arbitrary_types_allowed=True):
 	_sp: spotipy.Spotify = None
 	_user: User = None
-	_albums: list[Album] = []
-	_tracks: list[Track] = []
-	_artists: list[Artist] = []
-	_playlists: list[Playlist] = []
-	_albums_to_read: list[Album] = []
-	_tracks_to_read: list[Track] = []
-	_artists_to_read: list[Artist] = []
-	_playlists_to_read: list[Playlist] = []
+	_lib_to_read: Library = Library()
 	_t: time = None
 	_cnt: int = 0
 
@@ -42,9 +35,7 @@ class SpotifyOnLoader(OnLoader, arbitrary_types_allowed=True):
 			if inp is None:
 				return func(**params)
 			else:
-				# TODO: need to check if this condition ever occurs
 				return func(inp, **params)
-				pass
 
 
 	def model_post_init(self, __context):
@@ -55,17 +46,11 @@ class SpotifyOnLoader(OnLoader, arbitrary_types_allowed=True):
 		if self._sp is not None and self._user is not None:
 			return self._user.name
 		try:
-			self._sp = spotipy.Spotify(auth_manager=SpotifyOAuth(scope=SCOPES))
+			self._sp = spotipy.Spotify(
+							auth_manager=SpotifyOAuth(scope=SCOPES))
 		except SpotifyOauthError as error:
 			raise OnLoaderAuthError(str(error))
-		us = self._sp.me()
-		# TODO: when using persistence, first check if user exists 
-		# 		if yes, then retrieve object, else create new obj
-		self._user = User(
-				email=us.get('email'),
-				name=us.get('display_name'),
-				ext_ids=ExternalIDs(spotify=us.get('id'))
-			)
+		self._user = self._format_as_user(self._sp.me())
 		return self._user.name
 
 
@@ -106,18 +91,35 @@ class SpotifyOnLoader(OnLoader, arbitrary_types_allowed=True):
 
 
 	def get_tracks(self) -> list[Track]:		
-		tracks = self._get(self._sp.current_user_top_tracks, self._format_as_track)
-		tracks.extend(self._get(self._sp.current_user_saved_tracks, self._format_as_track))
+		tracks = self._get(
+						self._sp.current_user_top_tracks,
+						self._format_as_track
+					)
+		tracks.extend(
+				self._get(
+						self._sp.current_user_saved_tracks,
+						self._format_as_track
+						)
+				)
 		return tracks
 
 	def get_albums(self) -> list[Album]:
-		return self._get(self._sp.current_user_saved_albums, self._format_as_album)
+		return self._get(
+					self._sp.current_user_saved_albums,
+					self._format_as_album
+				)
 
 	def get_playlists(self) -> list[Playlist]:
-		return self._get(self._sp.current_user_playlists, self._format_as_playlist)
+		return self._get(
+					self._sp.current_user_playlists,
+					self._format_as_playlist
+				)
 
 	def get_artists(self) -> list[Artist]:
-		return self._get(self._sp.current_user_top_artists, self._format_as_artist)
+		return self._get(
+					self._sp.current_user_top_artists,
+					self._format_as_artist
+				)
 
 	def get_related_artists(self, art_id: str) -> list[Artist]:
 		# artist_related_artists(artist_id)
@@ -131,8 +133,7 @@ class SpotifyOnLoader(OnLoader, arbitrary_types_allowed=True):
 					params={'limit': limit, 'offset': offset},
 					inp=inp
 				)
-			if res['items'] == []:
-				break
+			if res['items'] == []: break
 			items.extend([format_func(item) for item in res.get('items')])
 		return items
 
@@ -145,9 +146,9 @@ class SpotifyOnLoader(OnLoader, arbitrary_types_allowed=True):
 							inp=tr_ids
 						).get('tracks')
 		return [self._create_or_load_track(tr_data) for tr_data in trs_data]
-		
 
-	def _get_common_fields(self, item: dict) -> dict:
+
+	def _format_common_fields(self, item: dict) -> dict:
 		it = {}
 		it['name'] = item.get('name')
 		it['ext_ids'] = {'spotify': item.get('id')}
@@ -158,7 +159,7 @@ class SpotifyOnLoader(OnLoader, arbitrary_types_allowed=True):
 		
 		imgs = item.get('images')
 		it['thumb'] = imgs[0].get('url') if imgs is not None and len(imgs) != 0 else None
-		
+
 		if 'artists' in item.keys():
 			arts = item.get('artists')
 			it['artist'] = self._format_as_artist(arts[0])
@@ -169,14 +170,13 @@ class SpotifyOnLoader(OnLoader, arbitrary_types_allowed=True):
 	def _format_as_album(self, item: dict) -> Album:
 		if 'album' in item.keys():
 			item = item.get('album')
-		alb = self._get_common_fields(item)
+		alb = self._format_common_fields(item)
 		alb['release_type'] = ReleaseTypeEnum.get_release_enum_by_name(item.get('album_type'))
 		alb['label'] = item.get('label')
 		alb['date'] = SimpleDate(item.get('release_date')).dt
 
 		alb_obj = self._create_or_load_album(alb)
-		
-		if alb_obj.tracklist == []:
+		if alb_obj.tracklist == [] and 'tracks' in item.keys():
 			items = item.get('tracks').get('items')
 			trklst = [self._format_as_track(itm, alb_obj) for itm in items]
 			alb_obj.tracklist = trklst
@@ -184,91 +184,54 @@ class SpotifyOnLoader(OnLoader, arbitrary_types_allowed=True):
 		
 
 	def _format_as_playlist(self, item: dict) -> Playlist:
-		pl = self._get_common_fields(item)
+		pl = self._format_common_fields(item)
 		pl['description'] = item.get('description')
-		pl['creator'] = self._format_as_user({
-							'name': item.get('owner').get('display_name'),
-							'ext_ids': ExternalIDs(spotify=item.get('owner').get('id'))
-						})
+		pl['creator'] = self._format_as_user(item.get('owner'))
 		pl_o = self._create_or_load_playlist(pl)
-		pl_o.tracklist = self._get_playlist_tracks(pl_o.ext_ids.spotify)
+		pl_o.tracklist = self._get(
+							self._sp.playlist_items,
+							self._format_as_track,
+							inp=pl_o.ext_ids.spotify,
+							limit=100
+						)
 		return pl_o
 
-	def _get_playlist_tracks(self, pl_id: str) -> list[Track]:
-		return self._get(
-						self._sp.playlist_items,
-						self._format_as_track,
-						inp=pl_id,
-						limit=100
-					)
 
 	def _format_as_track(self, res: dict, alb=None) -> Track:
 		if 'track' in res.keys():
 			res = res.get('track')
-
-		tr = self._get_common_fields(res)
-
+		tr = self._format_common_fields(res)
 		if 'external_ids' in res.keys():
 			tr['ext_ids']['upc'] = res.get('external_ids').get('upc')
-			tr['ext_ids']['isrc'] = res.get('external_ids').get('isrc')
-			
+			tr['ext_ids']['isrc'] = res.get('external_ids').get('isrc')	
 		if alb is None and 'album' in res.keys():
 			al = res.get('album')
-			alb = Album(
-						name=al.get('name'),
-						artist=tr['artist'],
-						ext_ids=ExternalIDs(spotify=al.get('id')),
-						date=SimpleDate(al.get('release_date')).dt
-					)
+			al['artist'] = tr['artist']
+			alb = self._format_as_album(al)
 			self._add_to_to_read(alb)
-
 		tr = self._create_or_load_track(tr)
 		if alb.date < tr.date:
 			tr.date = alb.date
-		
 		return tr
 
+
 	def _format_as_artist(self, item: dict) -> Artist:
-		art = self._get_common_fields(item)
-		return self._create_or_load_artist(art)
+		return self._create_or_load_artist(
+				self._format_common_fields(item)
+			)
+
 
 	def _format_as_user(self, item: dict) -> User:
-		return self._create_or_load_user(item)
-	
-	def _add_to_extended_library(self, alb: Album) -> None:
-		# TODO: Add a cache and only append if not in cache
-		self._albums.append(alb)
-
+		return self._create_or_load_user({
+						'email': item.get('email'),
+						'name': item.get('display_name'),
+						'ext_ids': {'spotify': item.get('id')}
+						})
 
 	def _add_to_to_read(self, obj: VMLThing) -> None:
 		# TODO: Add a cache and only append if not in cache
-		if type(obj) == Album:
-			self._albums_to_read.append(obj)
-		elif type(obj) == Artist:
-			self._artists_to_read.append(obj)
-		elif type(obj) == Playlist:
-			self._playlists_to_read.append(obj)
-		elif type(obj) == Track:
-			self._tracks_to_read.append(obj)
-
-
-	def _create_or_load_track(self, data: dict) -> Track:
-		return Track(**data)
-
-	def _create_or_load_album(self, data: dict) -> Album:
-		return Album(**data)
-
-	def _create_or_load_artist(self, data: dict) -> Artist:
-		return Artist(**data)
-
-	def _create_or_load_user(self, data: dict) -> User:
-		return User(**data)
-
-	def _create_or_load_playlist(self, data: dict) -> Playlist:
-		return Playlist(**data)
-
-
-
+		self._lib_to_read.add(obj)
+	
 
 #Get Tracks' Audio Features
 # Get audio features for multiple tracks based on their Spotify IDs.

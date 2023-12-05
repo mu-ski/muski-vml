@@ -65,14 +65,26 @@ class Playlist(VMLThing):
 class Library(VMLThing):
 	#TODO: use bigtree instead
 	# or find something that works with pydantic out of the box
+	name: str = ''
 	parent: Optional['Library'] = None
 	children: Optional[list['Library']] = []
-
 	artists: Optional[list[Artist]] = []
 	playlists: Optional[list[Playlist]] = []
 	albums: Optional[list[Album]] = []
 	tracks: Optional[list[Track]] = []
 	genres: Optional[list[Genre]] = []
+
+
+	def add(self, obj: VMLThing) -> None:
+		if type(obj) == Album:
+			self.albums.append(obj)
+		elif type(obj) == Artist:
+			self.artists.append(obj)
+		elif type(obj) == Playlist:
+			self.playlists.append(obj)
+		elif type(obj) == Track:
+			self.tracks.append(obj)
+
 
 	# def init(self, artists, playlists, albums, tracks):
 	# 	"""Given a set of lists of music items, initialize the object with thin copies of them"""
