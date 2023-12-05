@@ -27,7 +27,7 @@ class SpotifyOnLoader(OnLoader, arbitrary_types_allowed=True):
 	_cnt: int = 0
 
 
-	def _c(self, func, inp=None, params=None):
+	def _c(self, func, params=None, inp=None):
 		"""Routing all the API calls through this for easily managing rate limits"""
 		if self._t is None:
 			self._t = time.time()
@@ -43,6 +43,7 @@ class SpotifyOnLoader(OnLoader, arbitrary_types_allowed=True):
 				return func(**params)
 			else:
 				# TODO: need to check if this condition ever occurs
+				return func(inp, **params)
 				pass
 
 
@@ -122,27 +123,29 @@ class SpotifyOnLoader(OnLoader, arbitrary_types_allowed=True):
 		# artist_related_artists(artist_id)
 		pass
 
-	def _get(self, func1, func2) -> list[VMLThing]:
+	def _get(self, spot_func, format_func, limit=20, inp=None) -> list[VMLThing]:
 		items = []
-		for offset in range(0, 2000, 20):
+		for offset in range(0, 2000, limit):
 			res = self._c(
-					func1,
-					params={'limit': 20, 'offset': offset}
+					spot_func,
+					params={'limit': limit, 'offset': offset},
+					inp=inp
 				)
 			if res['items'] == []:
 				break
-			items.extend([func2(item) for item in res.get('items')])
+			items.extend([format_func(item) for item in res.get('items')])
 		return items
-
 
 	def _get_a_list_of_tracks(self, tracks: list) -> list[Track]:
 		if 'items' in tracks.keys():
 			tracks = tracks['items']
-		
 		tr_ids = [tr.get('id') for tr in tracks.get('items')]
-		trs_data = self._c(self._sp.tracks, inp=tr_ids).get('tracks')
-
+		trs_data = self._c(
+							self._sp.tracks,
+							inp=tr_ids
+						).get('tracks')
 		return [self._create_or_load_track(tr_data) for tr_data in trs_data]
+		
 
 	def _get_common_fields(self, item: dict) -> dict:
 		it = {}
@@ -160,16 +163,13 @@ class SpotifyOnLoader(OnLoader, arbitrary_types_allowed=True):
 			arts = item.get('artists')
 			it['artist'] = self._format_as_artist(arts[0])
 			it['artist_sec'] = self._format_as_artist(arts[1]) if len(arts) > 1 else None
-
 		return it
 
 
 	def _format_as_album(self, item: dict) -> Album:
 		if 'album' in item.keys():
 			item = item.get('album')
-
 		alb = self._get_common_fields(item)
-
 		alb['release_type'] = ReleaseTypeEnum.get_release_enum_by_name(item.get('album_type'))
 		alb['label'] = item.get('label')
 		alb['date'] = SimpleDate(item.get('release_date')).dt
@@ -180,42 +180,27 @@ class SpotifyOnLoader(OnLoader, arbitrary_types_allowed=True):
 			items = item.get('tracks').get('items')
 			trklst = [self._format_as_track(itm, alb_obj) for itm in items]
 			alb_obj.tracklist = trklst
-
 		return alb_obj
 		
 
 	def _format_as_playlist(self, item: dict) -> Playlist:
 		pl = self._get_common_fields(item)
-
 		pl['description'] = item.get('description')
 		pl['creator'] = self._format_as_user({
 							'name': item.get('owner').get('display_name'),
 							'ext_ids': ExternalIDs(spotify=item.get('owner').get('id'))
 						})
 		pl_o = self._create_or_load_playlist(pl)
-		self._insert_tracklist_into_playlist(pl_o)
+		pl_o.tracklist = self._get_playlist_tracks(pl_o.ext_ids.spotify)
 		return pl_o
 
-
-	def _insert_tracklist_into_playlist(self, playlist: Playlist) -> Playlist:
-		tr_ls = []
-		for offset in range(0, 2000, 100):
-			res = self._c(
-				self._sp.playlist_items,
-				params={'playlist_id': playlist.ext_ids.spotify, 
-						'limit': 100, 
-						'offset': offset, 
-						'additional_types': ('track',)
-					}
-				)
-			if res['items'] == []:
-				break
-			tracks = res.get('items')
-			tracks = [self._format_as_track(tr) for tr in tracks]
-			tr_ls.extend(tracks)
-		playlist.tracklist = tr_ls
-		return playlist
-
+	def _get_playlist_tracks(self, pl_id: str) -> list[Track]:
+		return self._get(
+						self._sp.playlist_items,
+						self._format_as_track,
+						inp=pl_id,
+						limit=100
+					)
 
 	def _format_as_track(self, res: dict, alb=None) -> Track:
 		if 'track' in res.keys():
