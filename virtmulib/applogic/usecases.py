@@ -39,6 +39,7 @@ from virtmulib.applogic.onloader import OnLoader, OnLoaderAuthError
 #         except OnLoaderAuthError as e:
 #             print(str(e))
 
+
 class GetUserData:
     def __call__(self, onloader: OnLoader) -> Library:
         try:
@@ -46,6 +47,7 @@ class GetUserData:
         except OnLoaderAuthError as e:
             print(str(e))
             return None
+
 
 class GetUserDataPlaylists:
     def __call__(self, onloader: OnLoader) -> list[Playlist]:
@@ -55,6 +57,7 @@ class GetUserDataPlaylists:
             print(str(e))
             return None
 
+
 class GetUserDataAlbums:
     def __call__(self, onloader: OnLoader) -> list[Album]:
         try:
@@ -63,6 +66,7 @@ class GetUserDataAlbums:
             print(str(e))
             return None
 
+
 class GetUserDataTracks:
     def __call__(self, onloader: OnLoader) -> list[Track]:
         try:
@@ -70,6 +74,7 @@ class GetUserDataTracks:
         except OnLoaderAuthError as e:
             print(str(e))
             return None
+
 
 class GetUserDataArtists:
     def __call__(self, onloader: OnLoader) -> list[Artist]:

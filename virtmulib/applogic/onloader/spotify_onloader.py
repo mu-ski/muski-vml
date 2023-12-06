@@ -19,6 +19,7 @@ SCOPES = [
 ]
 CNT: int = 0
 
+
 class SpotifyOnLoader(OnLoader):
     model_config = ConfigDict(arbitrary_types_allowed=True)
     # _sp: Spotify = None
@@ -35,13 +36,11 @@ class SpotifyOnLoader(OnLoader):
         if params is None or params == {}:
             if inp is None:
                 return func()
-            else:
-                return func(inp)
+            return func(inp)
         else:
             if inp is None:
                 return func(**params)
-            else:
-                return func(inp, **params)
+            return func(inp, **params)
 
     @staticmethod
     def call(func: type, params=None, inp=None):
@@ -74,7 +73,8 @@ class SpotifyOnLoader(OnLoader):
         try:
             sp = Spotify(auth_manager=SpotifyOAuth(scope=SCOPES))
         except SpotifyOauthError as error:
-            raise OnLoaderAuthError(str(error))
+            raise OnLoaderAuthError(
+                    "Something went wrong while signing up.") from error
         return sp
 
     def login_onload_user_data() -> None:
@@ -245,6 +245,7 @@ class SpotifyOnLoader(OnLoader):
     # def _append_to_read(obj: VMLThing) -> None:
     #     # TODO: Add a cache and only append if not in cache
     #     _lib_to_read.add(obj)
+
 
 # Get Tracks' Audio Features
 # Get audio features for multiple tracks based on their Spotify IDs.

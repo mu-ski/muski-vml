@@ -1,17 +1,23 @@
+from typing import Any, Optional
 from enum import Enum
-from typing import Optional
 from pydantic import BaseModel, ConfigDict
+from bson import ObjectId
+from pydantic_core import core_schema
+
 
 class StrEnum(Enum):
     def __str__(self):
         return f"{self.name}"
 
+
 class MusicModelAttributeEnum(StrEnum):
     pass
+
 
 class MusicModel(BaseModel):
     model_config = ConfigDict(extra="allow", validate_assignment=True)
     pass
+
 
 # class SimpleDate:
 #     dt: datetime.date
@@ -22,15 +28,17 @@ class MusicModel(BaseModel):
 #             default_date = [1900, 1, 1]
 #             lis.extend(default_date[len(lis) :])
 #         self.dt = datetime.date(*lis)
-    
+
 #     def __repr__() -> str:
 #         return dt.isoformat()
-    
+
 #     def __str__() -> str:
 #         return dt.isoformat()
 
+
 class AIAgentEnum(StrEnum):
     llamma_2_70gb = "llamma_2_70gb"
+
 
 class ReleaseTypeEnum(StrEnum):
     album = "album"
@@ -42,11 +50,12 @@ class ReleaseTypeEnum(StrEnum):
         nm = name.lower().strip()
         if nm.find("album") > -1:
             return ReleaseTypeEnum.album
-        elif nm.find("single") > -1:
+        if nm.find("single") > -1:
             return ReleaseTypeEnum.single
-        elif nm.find("compilation") > -1:
+        if nm.find("compilation") > -1:
             return ReleaseTypeEnum.compilation
         return None
+
 
 class AIAgentSetup(BaseModel):
     model_config = ConfigDict(extra="allow", validate_assignment=True)
@@ -54,15 +63,10 @@ class AIAgentSetup(BaseModel):
     agent: AIAgentEnum
     setup: Optional[str] = None
 
-"""
 
+"""
 From: https://stackoverflow.com/questions/76686888/using-bson-objectid-in-pydantic-v2/77105412#77105412
-
 """
-
-from typing import Any
-from bson import ObjectId
-from pydantic_core import core_schema
 
 class PyObjectId(str):
     @classmethod
