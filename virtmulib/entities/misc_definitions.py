@@ -1,10 +1,10 @@
 import datetime
-from enum import Enum
+from enum import Enum, StrEnum
 from typing import Optional
 from pydantic import BaseModel, ConfigDict
 
 
-class MusicModelAttributeEnum(Enum):
+class MusicModelAttributeEnum(StrEnum):
 	pass
 
 
@@ -25,11 +25,11 @@ class SimpleDate:
 		return dt.isoformat()
 
 
-class AIAgentEnum(Enum):
+class AIAgentEnum(StrEnum):
 	llamma_2_70gb = 'llamma_2_70gb'
 
 
-class ReleaseTypeEnum(Enum):
+class ReleaseTypeEnum(StrEnum):
 	album = 'album'
 	single = 'single'
 	compilation = 'compilation'
