@@ -15,7 +15,6 @@ Personalized playlist creator and recommender.
 **To:**
 Curate and a playlists for them and add it to their spotify account
 
-
 ## MVP
 
 *REST API only*
