@@ -18,7 +18,6 @@ SCOPES = [
 ]
 CNT: int = 0
 
-
 class SpotifyOnLoader(OnLoader):
     model_config = ConfigDict(arbitrary_types_allowed=True)
     # _sp: Spotify = None
@@ -237,7 +236,6 @@ class SpotifyOnLoader(OnLoader):
     # def _append_to_read(obj: VMLThing) -> None:
     #     # TODO: Add a cache and only append if not in cache
     #     _lib_to_read.add(obj)
-
 
 # Get Tracks' Audio Features
 # Get audio features for multiple tracks based on their Spotify IDs.

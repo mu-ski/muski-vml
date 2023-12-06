@@ -3,20 +3,16 @@ from enum import Enum
 from typing import Optional
 from pydantic import BaseModel, ConfigDict
 
-
 class StrEnum(Enum):
     def __str__(self):
         return f"{self.name}"
 
-
 class MusicModelAttributeEnum(StrEnum):
     pass
-
 
 class MusicModel(BaseModel):
     model_config = ConfigDict(extra="allow", validate_assignment=True)
     pass
-
 
 class SimpleDate:
     dt: datetime.date
@@ -31,10 +27,8 @@ class SimpleDate:
     def __repr__() -> str:
         return dt.isoformat()
 
-
 class AIAgentEnum(StrEnum):
     llamma_2_70gb = "llamma_2_70gb"
-
 
 class ReleaseTypeEnum(StrEnum):
     album = "album"
@@ -52,13 +46,11 @@ class ReleaseTypeEnum(StrEnum):
             return ReleaseTypeEnum.compilation
         return None
 
-
 class AIAgentSetup(BaseModel):
     model_config = ConfigDict(extra="allow", validate_assignment=True)
 
     agent: AIAgentEnum
     setup: Optional[str] = None
-
 
 """
 
@@ -69,7 +61,6 @@ From: https://stackoverflow.com/questions/76686888/using-bson-objectid-in-pydant
 from typing import Any
 from bson import ObjectId
 from pydantic_core import core_schema
-
 
 class PyObjectId(str):
     @classmethod

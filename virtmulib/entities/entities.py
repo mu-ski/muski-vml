@@ -2,8 +2,7 @@ from abc import ABC
 from typing import Optional
 from pydantic import BaseModel, EmailStr, UUID4, Field, ConfigDict, HttpUrl
 
-from virtmulib.entities.misc_definitions import *
-
+#from virtmulib.entities.misc_definitions import 
 
 class ExternalIDs(BaseModel):
     model_config = ConfigDict(extra="allow", validate_assignment=True)
@@ -13,7 +12,6 @@ class ExternalIDs(BaseModel):
     isrc: Optional[str] = None
     discogs: Optional[str] = None
     spotify: Optional[str] = None
-
 
 class VMLThing(BaseModel, ABC):
     model_config = ConfigDict(validate_assignment=True)
@@ -28,22 +26,18 @@ class VMLThing(BaseModel, ABC):
     ext_ids: Optional[ExternalIDs] = ExternalIDs()
     related: Optional[list["VMLThing"]] = []
 
-
 class Genre(VMLThing):
     pass
-
 
 class Artist(VMLThing):
     albums: Optional[list["Album"]] = None
     tracks: Optional[list["Track"]] = None
-
 
 class Track(VMLThing):
     artist: Artist
     artist_sec: Optional[Artist] = None
     albums: Optional[list["Album"]] = []
     playlists: Optional[list[PyObjectId]] = []
-
 
 class Album(VMLThing):
     artist: Artist
@@ -52,13 +46,11 @@ class Album(VMLThing):
     label: Optional[str] = None
     release_type: Optional[ReleaseTypeEnum] = None
 
-
 class Playlist(VMLThing):
     creator: "User"
     ai_agent_setup: Optional[AIAgentSetup] = None
     tracklist: Optional[list[Track]] = []
     description: Optional[str] = None
-
 
 class Library(VMLThing):
     # TODO: use bigtree instead
@@ -88,7 +80,6 @@ class Library(VMLThing):
 
     def add_child(self, node: "Library"):
         children.append(node)
-
 
 class User(VMLThing):
     email: Optional[EmailStr] = None

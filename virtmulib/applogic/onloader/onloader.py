@@ -3,11 +3,9 @@ from pydantic import BaseModel
 
 from virtmulib.entities import Playlist, User, Album, Track, Library, Artist, Genre
 
-
 class OnLoaderAuthError(Exception):
     "User-defined exception class to wrap auth errors of onloaders."
     pass
-
 
 class OnLoader(BaseModel, ABC):
     "Abstract class interface for onloaders."

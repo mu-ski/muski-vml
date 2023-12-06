@@ -53,7 +53,7 @@ def placeholder_test(input, usecase_class, onloader):
 
     def mock_call(func, params, inp):
         return ip.pop()
-    
+
     monkeypatch.setattr(SpotifyOnLoader, "call", mock_call)
 
     out = _obj_to_dict_items(usecase_class()(onloader))
