@@ -1,7 +1,11 @@
 import datetime
-from enum import Enum, StrEnum
+from enum import Enum
 from typing import Optional
 from pydantic import BaseModel, ConfigDict
+
+class StrEnum(Enum):
+	def __str__(self):
+		return f'{self.name}'
 
 
 class MusicModelAttributeEnum(StrEnum):
