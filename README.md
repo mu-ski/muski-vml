@@ -2,7 +2,6 @@
 
 Virtual music library and music recommendation engine
 
-
 # Product Overview
 
 Personalized playlist creator and recommender. 
