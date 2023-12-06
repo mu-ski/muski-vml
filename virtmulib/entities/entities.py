@@ -7,7 +7,7 @@ from virtmulib.entities.misc_definitions import (
     PyObjectId,
     MusicModel,
     ReleaseTypeEnum,
-    AIAgentSetup
+    AIAgentSetup,
 )
 
 
@@ -79,13 +79,13 @@ class Library(VMLThing):
     genres: Optional[list[Genre]] = []
 
     def add(self, obj: VMLThing) -> None:
-        if type(obj) is Album:
+        if isinstance(obj, Album):
             self.albums.append(obj)
-        elif type(obj) is Artist:
+        elif isinstance(obj, Artist):
             self.artists.append(obj)
-        elif type(obj) is Playlist:
+        elif isinstance(obj, Playlist):
             self.playlists.append(obj)
-        elif type(obj) is Track:
+        elif isinstance(obj, Track):
             self.tracks.append(obj)
 
     # def init(self, artists, playlists, albums, tracks):

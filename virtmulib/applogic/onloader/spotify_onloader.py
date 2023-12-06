@@ -3,7 +3,16 @@ from pydantic import ConfigDict
 from spotipy import Spotify
 from spotipy.oauth2 import SpotifyOAuth, SpotifyOauthError
 
-from virtmulib.entities import Playlist, User, Album, Track, Library, Artist, VMLThing
+from virtmulib.entities import (
+    Playlist,
+    User,
+    Album,
+    Track,
+    Library,
+    Artist,
+    VMLThing,
+    Genre,
+)
 
 from virtmulib.entities.misc_definitions import ReleaseTypeEnum
 
@@ -73,8 +82,7 @@ class SpotifyOnLoader(OnLoader):
         try:
             sp = Spotify(auth_manager=SpotifyOAuth(scope=SCOPES))
         except SpotifyOauthError as error:
-            raise OnLoaderAuthError(
-                    "Something went wrong while signing up.") from error
+            raise OnLoaderAuthError("Something went wrong while signing up.") from error
         return sp
 
     def login_onload_user_data() -> None:
@@ -157,7 +165,7 @@ class SpotifyOnLoader(OnLoader):
         it["ext_ids"] = {"spotify": item.get("id")}
 
         if "genres" in item.keys():
-            grs = [SpotifyOnLoader.create_or_load_genre(name=g) for g in item["genres"]]
+            grs = [SpotifyOnLoader._format_as_genre(g) for g in item["genres"]]
             it["genres"] = grs
 
         imgs = item.get("images")
@@ -174,6 +182,10 @@ class SpotifyOnLoader(OnLoader):
                 else None
             )
         return it
+
+    @staticmethod
+    def _format_as_genre(item: str) -> Genre:
+        return SpotifyOnLoader.create_or_load_genre({"name": item})
 
     @staticmethod
     def _format_as_album(item: dict) -> Album:
