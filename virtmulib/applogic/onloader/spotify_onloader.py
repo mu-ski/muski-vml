@@ -7,6 +7,7 @@ from spotipy.oauth2 import SpotifyOAuth, SpotifyOauthError, SpotifyPKCE, CacheFi
 from virtmulib.applogic.onloader import OnLoader
 from virtmulib.entities import *
 
+TEST = True
 SCOPES = ['user-library-read', 'user-follow-read', 'user-top-read',
 		'playlist-modify-public', 'playlist-read-private']
 CNT: int = 0
@@ -39,6 +40,9 @@ class SpotifyOnLoader(OnLoader):
 		return res
 
 	def _get(spot_func, format_func, limit=20, inp=None, max=2000) -> list[VMLThing]:
+		if TEST:
+			limit = 2
+			max = 2
 		items = []
 		for offset in range(0, max, limit):
 			res = SpotifyOnLoader.call(

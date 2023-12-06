@@ -42,8 +42,9 @@ def test_get_user_data_spotify_artists(input):
 
 # def test_get_user_data_spotify() -> User:
 # 	user = usecases.GetUserData()(SpotifyOnLoader)
+# 	# TODO: implement
+# 	#print(json.dumps(_obj_to_dict(user)))
 # 	assert True
-	
 
 def placeholder_test(input, usecase_class, onloader):
 	ip = input[0]
