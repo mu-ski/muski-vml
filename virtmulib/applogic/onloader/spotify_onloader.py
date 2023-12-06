@@ -1,10 +1,11 @@
+import datetime
 from pydantic import ConfigDict
 from spotipy import Spotify
 from spotipy.oauth2 import SpotifyOAuth, SpotifyOauthError
 
 from virtmulib.entities import Playlist, User, Album, Track, Library, Artist, VMLThing
 
-from virtmulib.entities.misc_definitions import ReleaseTypeEnum, SimpleDate
+from virtmulib.entities.misc_definitions import ReleaseTypeEnum
 
 from virtmulib.applogic.onloader import OnLoader, OnLoaderAuthError
 
@@ -183,7 +184,7 @@ class SpotifyOnLoader(OnLoader):
             item.get("album_type")
         )
         alb["label"] = item.get("label")
-        alb["date"] = SimpleDate(item.get("release_date")).dt
+        alb["date"] = SpotifyOnLoader.date_helper(item.get("release_date"))
 
         alb_obj = SpotifyOnLoader.create_or_load_album(alb)
         if alb_obj.tracklist == [] and "tracks" in item.keys():
@@ -232,6 +233,14 @@ class SpotifyOnLoader(OnLoader):
                 "ext_ids": {"spotify": item.get("id")},
             }
         )
+
+    @staticmethod
+    def date_helper(dt: str) -> datetime.date:
+        lis = [int(i) for i in dt.split("-")]
+        if len(lis) < 3:
+            default_date = [1900, 1, 1]
+            lis.extend(default_date[len(lis) :])
+        return datetime.date(*lis)
 
     # def _append_to_read(obj: VMLThing) -> None:
     #     # TODO: Add a cache and only append if not in cache

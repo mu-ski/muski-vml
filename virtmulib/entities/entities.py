@@ -1,8 +1,10 @@
+import datetime
 from abc import ABC
 from typing import Optional
 from pydantic import BaseModel, EmailStr, UUID4, Field, ConfigDict, HttpUrl
 
-#from virtmulib.entities.misc_definitions import 
+from virtmulib.entities.misc_definitions import (
+        PyObjectId, MusicModel, ReleaseTypeEnum, AIAgentSetup)
 
 class ExternalIDs(BaseModel):
     model_config = ConfigDict(extra="allow", validate_assignment=True)
