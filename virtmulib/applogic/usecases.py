@@ -23,7 +23,7 @@ from abc import ABC
 from attrs import define
 
 from virtmulib.entities import VMLThing
-from virtmulib.applogic.onloader import OnLoaderAuthError
+from virtmulib.applogic.onload import OnLoadAuthError
 
 
 @define
@@ -35,7 +35,7 @@ class OnloaderAction(ABC):
         try:
             func = getattr(self.OnLoad, self.f_name)
             return func()
-        except OnLoaderAuthError as e:
+        except OnLoadAuthError as e:
             print(str(e))
             return None
 
@@ -63,11 +63,3 @@ class GetUserDataTracks(OnloaderAction):
 @define
 class GetUserDataArtists(OnloaderAction):
     f_name: str = "get_artists"
-
-
-# class LoginSignup:
-#     def __call__(self, OnLoad: OnLoad) -> EmailStr:
-#         try:
-#             return OnLoad().login_signup()
-#         except OnLoaderAuthError as e:
-#             print(str(e))

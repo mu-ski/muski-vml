@@ -4,7 +4,7 @@ import json
 from email_validator import validate_email
 
 from virtmulib.applogic import usecases
-from virtmulib.applogic.onloader.spotify_onloader import OnLoadSpotify, SpotifyAPICall
+from virtmulib.applogic.onload.onload_spotify import OnLoadSpotify, SpotifyAPICall
 from virtmulib.entities import *
 
 test_data = json.loads(open("tests/json_test_data/test.json", 'r').read())

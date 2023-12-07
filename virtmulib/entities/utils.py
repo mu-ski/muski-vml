@@ -18,23 +18,6 @@ class MusicModel(BaseModel):
     model_config = ConfigDict(extra="allow", validate_assignment=True)
 
 
-# class SimpleDate:
-#     dt: datetime.date
-
-#     def __init__(self, dt: str) -> list:
-#         lis = [int(i) for i in dt.split("-")]
-#         if len(lis) < 3:
-#             default_date = [1900, 1, 1]
-#             lis.extend(default_date[len(lis) :])
-#         self.dt = datetime.date(*lis)
-
-#     def __repr__() -> str:
-#         return dt.isoformat()
-
-#     def __str__() -> str:
-#         return dt.isoformat()
-
-
 class AIAgentEnum(StrEnum):
     llamma_2_70gb = "llamma_2_70gb"
 

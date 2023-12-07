@@ -3,7 +3,7 @@ from abc import ABC
 from typing import Optional
 from pydantic import BaseModel, EmailStr, UUID4, Field, ConfigDict, HttpUrl
 
-from virtmulib.entities.misc_definitions import (
+from virtmulib.entities.utils import (
     PyObjectId,
     MusicModel,
     ReleaseTypeEnum,

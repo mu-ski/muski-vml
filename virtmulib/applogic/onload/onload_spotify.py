@@ -13,9 +13,9 @@ from virtmulib.entities import (
     Genre,
 )
 
-from virtmulib.entities.misc_definitions import ReleaseTypeEnum
+from virtmulib.entities.utils import ReleaseTypeEnum
 
-from virtmulib.applogic.onloader import OnLoad, OnLoaderAuthError, OnLoadGetType
+from virtmulib.applogic.onload import OnLoad, OnLoadAuthError, OnLoadGetType
 
 TEST = True
 SCOPES = [
@@ -35,7 +35,7 @@ class OnLoadSpotify(OnLoad):
         try:
             sp = Spotify(auth_manager=SpotifyOAuth(scope=SCOPES))
         except SpotifyOauthError as error:
-            raise OnLoaderAuthError("Something went wrong while signing up.") from error
+            raise OnLoadAuthError("Something went wrong while signing up.") from error
         return sp
 
     @classmethod
@@ -70,9 +70,9 @@ class OnLoadSpotify(OnLoad):
 
 
 class SpotifyAPICall:
+    """A class to route all the API calls here for mocking and rate limit control purposes"""
     @classmethod
     def _call(cls, func: type, params=None, inp=None):
-        """Routing all the API calls here for mocking and rate limits"""
         global CNT
         # if _t is None:
         #     _t = time.time()
