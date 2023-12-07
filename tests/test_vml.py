@@ -26,19 +26,27 @@ def _dict_to_tuples(test_data: dict, test_name: str) -> list[tuple]:
 
 @pytest.mark.parametrize("input", _dict_to_tuples(test_data, "get_playlists"))
 def test_get_user_data_spotify_playlists(input):
-    placeholder_test(input, usecases.GetUserDataPlaylists(SpotifyOnLoader))
+    placeholder_test(
+            input,
+            usecases.GetUserDataPlaylists(SpotifyOnLoader))
 
 @pytest.mark.parametrize("input", _dict_to_tuples(test_data, "get_albums"))
 def test_get_user_data_spotify_albums(input):
-    placeholder_test(input, usecases.GetUserDataAlbums(SpotifyOnLoader))
+    placeholder_test(
+            input,
+            usecases.GetUserDataAlbums(SpotifyOnLoader))
 
 @pytest.mark.parametrize("input", _dict_to_tuples(test_data, "get_tracks"))
 def test_get_user_data_spotify_tracks(input):
-    placeholder_test(input, usecases.GetUserDataTracks(SpotifyOnLoader))
+    placeholder_test(
+            input,
+            usecases.GetUserDataTracks(SpotifyOnLoader))
 
 @pytest.mark.parametrize("input", _dict_to_tuples(test_data, "get_artists"))
 def test_get_user_data_spotify_artists(input):
-    placeholder_test(input, usecases.GetUserDataArtists(SpotifyOnLoader))
+    placeholder_test(
+            input,
+            usecases.GetUserDataArtists(SpotifyOnLoader))
 
 # def test_live_get_user_data_spotify() -> User:
 #     get_user_data_action = usecases.GetUserData(SpotifyOnLoader)
