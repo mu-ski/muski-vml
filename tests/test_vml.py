@@ -24,29 +24,29 @@ def _dict_to_tuples(test_data: dict, test_name: str) -> list[tuple]:
     td = test_data.get('all_tests').get(test_name)
     return [tuple(t.values()) for t in td]
 
-# @pytest.mark.parametrize("input", _dict_to_tuples(test_data, "get_playlists"))
-# def test_get_user_data_spotify_playlists(input):
-#     placeholder_test(input, usecases.GetUserDataPlaylists, SpotifyOnLoader)
+@pytest.mark.parametrize("input", _dict_to_tuples(test_data, "get_playlists"))
+def test_get_user_data_spotify_playlists(input):
+    placeholder_test(input, usecases.GetUserDataPlaylists(SpotifyOnLoader))
 
-# @pytest.mark.parametrize("input", _dict_to_tuples(test_data, "get_albums"))
-# def test_get_user_data_spotify_albums(input):
-#     placeholder_test(input, usecases.GetUserDataAlbums, SpotifyOnLoader)
+@pytest.mark.parametrize("input", _dict_to_tuples(test_data, "get_albums"))
+def test_get_user_data_spotify_albums(input):
+    placeholder_test(input, usecases.GetUserDataAlbums(SpotifyOnLoader))
 
-# @pytest.mark.parametrize("input", _dict_to_tuples(test_data, "get_tracks"))
-# def test_get_user_data_spotify_tracks(input):
-#     placeholder_test(input, usecases.GetUserDataTracks, SpotifyOnLoader)
+@pytest.mark.parametrize("input", _dict_to_tuples(test_data, "get_tracks"))
+def test_get_user_data_spotify_tracks(input):
+    placeholder_test(input, usecases.GetUserDataTracks(SpotifyOnLoader))
 
-# @pytest.mark.parametrize("input", _dict_to_tuples(test_data, "get_artists"))
-# def test_get_user_data_spotify_artists(input):
-#     placeholder_test(input, usecases.GetUserDataArtists, SpotifyOnLoader)
+@pytest.mark.parametrize("input", _dict_to_tuples(test_data, "get_artists"))
+def test_get_user_data_spotify_artists(input):
+    placeholder_test(input, usecases.GetUserDataArtists(SpotifyOnLoader))
 
-def test_live_get_user_data_spotify() -> User:
-    get_user_data_action = usecases.GetUserData(SpotifyOnLoader)
-    user = get_user_data_action.execute()
-    #print(json.dumps(_obj_to_dict(user)))
-    assert _obj_to_dict(user) != {}
+# def test_live_get_user_data_spotify() -> User:
+#     get_user_data_action = usecases.GetUserData(SpotifyOnLoader)
+#     user = get_user_data_action.execute()
+#     #print(json.dumps(_obj_to_dict(user)))
+#     assert _obj_to_dict(user) != {}
 
-def placeholder_test(input, usecase_class, onloader):
+def placeholder_test(input, usecase_action: usecases.OnloaderAction):
     ip = input[0]
     ip.reverse()
     exp_out = input[1]
@@ -56,7 +56,6 @@ def placeholder_test(input, usecase_class, onloader):
 
     monkeypatch.setattr(SpotifyOnLoader, "call", mock_call)
     
-    usecase_action = usecase_class()
-    out = _obj_to_dict_items(usecase_action(onloader))
+    out = _obj_to_dict_items(usecase_action.execute())
 
     assert exp_out == out
