@@ -4,7 +4,7 @@ import json
 from email_validator import validate_email
 
 from virtmulib.applogic import usecases
-from virtmulib.applogic.onloader.spotify_onloader import SpotifyOnLoader
+from virtmulib.applogic.onloader.spotify_onloader import OnLoadSpotify, SpotifyAPICall
 from virtmulib.entities import *
 
 test_data = json.loads(open("tests/json_test_data/test.json", 'r').read())
@@ -28,31 +28,35 @@ def _dict_to_tuples(test_data: dict, test_name: str) -> list[tuple]:
 def test_get_user_data_spotify_playlists(input):
     placeholder_test(
             input,
-            usecases.GetUserDataPlaylists(SpotifyOnLoader))
-
-@pytest.mark.parametrize("input", _dict_to_tuples(test_data, "get_albums"))
-def test_get_user_data_spotify_albums(input):
-    placeholder_test(
-            input,
-            usecases.GetUserDataAlbums(SpotifyOnLoader))
-
-@pytest.mark.parametrize("input", _dict_to_tuples(test_data, "get_tracks"))
-def test_get_user_data_spotify_tracks(input):
-    placeholder_test(
-            input,
-            usecases.GetUserDataTracks(SpotifyOnLoader))
+            usecases.GetUserDataPlaylists(OnLoadSpotify))
 
 @pytest.mark.parametrize("input", _dict_to_tuples(test_data, "get_artists"))
 def test_get_user_data_spotify_artists(input):
     placeholder_test(
             input,
-            usecases.GetUserDataArtists(SpotifyOnLoader))
+            usecases.GetUserDataArtists(OnLoadSpotify))
 
-# def test_live_get_user_data_spotify() -> User:
-#     get_user_data_action = usecases.GetUserData(SpotifyOnLoader)
-#     user = get_user_data_action.execute()
-#     #print(json.dumps(_obj_to_dict(user)))
-#     assert _obj_to_dict(user) != {}
+@pytest.mark.parametrize("input", _dict_to_tuples(test_data, "get_albums"))
+def test_get_user_data_spotify_albums(input):
+    placeholder_test(
+            input,
+            usecases.GetUserDataAlbums(OnLoadSpotify))
+
+
+@pytest.mark.parametrize("input", _dict_to_tuples(test_data, "get_tracks"))
+def test_get_user_data_spotify_tracks(input):
+    placeholder_test(
+            input,
+            usecases.GetUserDataTracks(OnLoadSpotify))
+
+@pytest.mark.e2e
+def test_live_get_user_data_spotify():
+    monkeypatch.undo()
+    get_user_data_action = usecases.GetUserData(OnLoadSpotify)
+    user = get_user_data_action.execute()
+    obj = json.dumps(_obj_to_dict(user))
+    # print(obj)
+    assert obj != {}
 
 def placeholder_test(input, usecase_action: usecases.OnloaderAction):
     ip = input[0]
@@ -62,8 +66,11 @@ def placeholder_test(input, usecase_action: usecases.OnloaderAction):
     def mock_call(func, params, inp):
         return ip.pop()
 
-    monkeypatch.setattr(SpotifyOnLoader, "call", mock_call)
+    monkeypatch.setattr(SpotifyAPICall, "_call", mock_call)
     
     out = _obj_to_dict_items(usecase_action.execute())
+
+    # print(json.dumps(out))
+    # print(json.dumps(exp_out))
 
     assert exp_out == out

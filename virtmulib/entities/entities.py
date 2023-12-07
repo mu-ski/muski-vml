@@ -34,6 +34,11 @@ class VMLThing(BaseModel, ABC):
     ext_ids: Optional[ExternalIDs] = ExternalIDs()
     related: Optional[list["VMLThing"]] = []
 
+    @classmethod
+    def get_or_create(cls, data: dict):
+        # Retrieve obj if in DB
+        return cls(**data)
+
 
 class Genre(VMLThing):
     pass

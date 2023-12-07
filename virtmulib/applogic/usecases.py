@@ -20,19 +20,19 @@ will certainly be affected."
 
 """
 from abc import ABC
-from attrs import define, make_class
+from attrs import define
 
 from virtmulib.entities import Playlist, Album, Track, Library, Artist, VMLThing
-from virtmulib.applogic.onloader import OnLoader, OnLoaderAuthError
+from virtmulib.applogic.onloader import OnLoad, OnLoaderAuthError
 
 @define
 class OnloaderAction(ABC):
-    onloader: type
+    OnLoad: type
     f_name: str
-    
+
     def execute(self) -> VMLThing:
         try:
-            func = getattr(self.onloader, self.f_name)
+            func = getattr(self.OnLoad, self.f_name)
             return func()
         except OnLoaderAuthError as e:
             print(str(e))
@@ -60,8 +60,8 @@ class GetUserDataArtists(OnloaderAction):
 
 
 # class LoginSignup:
-#     def __call__(self, onloader: OnLoader) -> EmailStr:
+#     def __call__(self, OnLoad: OnLoad) -> EmailStr:
 #         try:
-#             return onloader().login_signup()
+#             return OnLoad().login_signup()
 #         except OnLoaderAuthError as e:
 #             print(str(e))

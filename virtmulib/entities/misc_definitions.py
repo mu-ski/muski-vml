@@ -41,19 +41,19 @@ class AIAgentEnum(StrEnum):
 
 
 class ReleaseTypeEnum(StrEnum):
-    album = "album"
-    single = "single"
-    compilation = "compilation"
+    ALBUM = "ALBUM"
+    SINGLE = "SINGLE"
+    COMPILATION = "COMPILATION"
 
     @classmethod
-    def get_release_enum_by_name(cls, name: str) -> "ReleaseTypeEnum":
+    def get_enum(cls, name: str) -> "ReleaseTypeEnum":
         nm = name.lower().strip()
         if nm.find("album") > -1:
-            return ReleaseTypeEnum.album
+            return ReleaseTypeEnum.ALBUM
         if nm.find("single") > -1:
-            return ReleaseTypeEnum.single
+            return ReleaseTypeEnum.SINGLE
         if nm.find("compilation") > -1:
-            return ReleaseTypeEnum.compilation
+            return ReleaseTypeEnum.COMPILATION
         return None
 
 
