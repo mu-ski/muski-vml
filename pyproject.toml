@@ -12,6 +12,7 @@ spotipy = "^2.23.0"
 pydantic = "^2.5.2"
 pymongo = "^4.6.1"
 flake8 = "^6.1.0"
+attrs = "^23.1.0"
 
 
 [tool.poetry.group.dev.dependencies]
