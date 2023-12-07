@@ -41,7 +41,7 @@ def _dict_to_tuples(test_data: dict, test_name: str) -> list[tuple]:
 #     placeholder_test(input, usecases.GetUserDataArtists, SpotifyOnLoader)
 
 def test_live_get_user_data_spotify() -> User:
-    get_user_data_action = usecases.GetUserData1(SpotifyOnLoader)
+    get_user_data_action = usecases.GetUserData(SpotifyOnLoader)
     user = get_user_data_action.execute()
     #print(json.dumps(_obj_to_dict(user)))
     assert _obj_to_dict(user) != {}

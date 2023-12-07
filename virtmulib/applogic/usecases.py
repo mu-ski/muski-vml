@@ -20,7 +20,7 @@ will certainly be affected."
 
 """
 from abc import ABC
-from attrs import define
+from attrs import define, make_class
 
 from virtmulib.entities import Playlist, Album, Track, Library, Artist, VMLThing
 from virtmulib.applogic.onloader import OnLoader, OnLoaderAuthError
@@ -46,51 +46,65 @@ class OnloaderAction(ABC):
             return None
 
 @define
-class GetUserData1(OnloaderAction):
+class GetUserData(OnloaderAction):
     f_name: str = "login_onload_user_data"
 
 @define
-class GetUserData:
-    onloader: OnLoader
-    def execute(self) -> Library:
-        try:
-            return self.onloader.login_onload_user_data()
-        except OnLoaderAuthError as e:
-            print(str(e))
-            return None
-
-@define
-class GetUserDataPlaylists:
-    def __call__(self, onloader: OnLoader) -> list[Playlist]:
-        try:
-            return onloader.get_playlists()
-        except OnLoaderAuthError as e:
-            print(str(e))
-            return None
+class GetUserDataPlaylists(OnloaderAction):
+    f_name: str = "get_playlists"
 
 @define
 class GetUserDataAlbums:
-    def __call__(self, onloader: OnLoader) -> list[Album]:
-        try:
-            return onloader.get_albums()
-        except OnLoaderAuthError as e:
-            print(str(e))
-            return None
+    f_name: str = "get_albums"
 
 @define
 class GetUserDataTracks:
-    def __call__(self, onloader: OnLoader) -> list[Track]:
-        try:
-            return onloader.get_tracks()
-        except OnLoaderAuthError as e:
-            print(str(e))
-            return None
+    f_name: str = "get_tracks"
 
-@define
-class GetUserDataArtists:
-    def __call__(self, onloader: OnLoader) -> list[Artist]:
-        try:
-            return onloader.get_artists()
-        except OnLoaderAuthError as e:
-            print(str(e))
-            return None
+# @define
+# class GetUserDataAlbums:
+#     def __call__(self, onloader: OnLoader) -> list[Album]:
+#         try:
+#             return onloader.get_albums()
+#         except OnLoaderAuthError as e:
+#             print(str(e))
+#             return None
+
+# @define
+# class GetUserDataTracks:
+#     def __call__(self, onloader: OnLoader) -> list[Track]:
+#         try:
+#             return onloader.get_tracks()
+#         except OnLoaderAuthError as e:
+#             print(str(e))
+#             return None
+
+# @define
+# class GetUserDataArtists:
+#     def __call__(self, onloader: OnLoader) -> list[Artist]:
+#         try:
+#             return onloader.get_artists()
+#         except OnLoaderAuthError as e:
+#             print(str(e))
+#             return None
+
+# @define
+# class GetUserData:
+#     onloader: OnLoader
+#     def execute(self) -> Library:
+#         try:
+#             return self.onloader.login_onload_user_data()
+#         except OnLoaderAuthError as e:
+#             print(str(e))
+#             return None
+
+
+# @define
+# class GetUserDataPlaylists:
+#     def __call__(self, onloader: OnLoader) -> list[Playlist]:
+#         try:
+#             return onloader.get_playlists()
+#         except OnLoaderAuthError as e:
+#             print(str(e))
+#             return None
+
