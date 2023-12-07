@@ -1,11 +1,11 @@
-from abc import ABC, abstractmethod
-from pydantic import BaseModel
+from abc import ABC
 
-from virtmulib.entities import Playlist, User, Album, Track, Library, Artist, Genre
+from virtmulib.entities import Playlist, Album, Track, Library, Artist
 
 
 class OnLoaderAuthError(Exception):
     "User-defined exception class to wrap auth errors of onloaders."
+
 
 class OnLoad(ABC):
     "Abstract class interface for onloaders."
@@ -30,16 +30,15 @@ class OnLoad(ABC):
     def get_artists() -> list[Artist]:
         pass
 
+
 class OnLoadGetType(ABC):
-    
     @classmethod
-    def retrieve(cls):
+    def retrieve(cls, *args):
         pass
 
     @classmethod
-    def read(cls):
+    def read(cls, *args):
         pass
-
 
     # def _add_to_extended_library(, obj: VMLThing) -> None:
     #     # TODO: Add a cache and only append if not in cache

@@ -72,8 +72,8 @@ class Playlist(VMLThing):
 
 
 class Library(VMLThing):
-    # TODO: use bigtree instead
-    # or find something that works with pydantic out of the box
+    # Consider using a built tree datasrtuct like bigtree instead
+    # Better if something that works with pydantic out of the box
     name: str = ""
     parent: Optional["Library"] = None
     children: Optional[list["Library"]] = []

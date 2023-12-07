@@ -1,7 +1,4 @@
-from abc import ABC, abstractmethod
 import datetime
-from attrs import define
-from pydantic import ConfigDict
 from spotipy import Spotify
 from spotipy.oauth2 import SpotifyOAuth, SpotifyOauthError
 
@@ -18,8 +15,7 @@ from virtmulib.entities import (
 
 from virtmulib.entities.misc_definitions import ReleaseTypeEnum
 
-from virtmulib.applogic.onloader import (
-            OnLoad, OnLoaderAuthError, OnLoadGetType)
+from virtmulib.applogic.onloader import OnLoad, OnLoaderAuthError, OnLoadGetType
 
 TEST = True
 SCOPES = [
@@ -33,7 +29,6 @@ CNT: int = 0
 
 
 class OnLoadSpotify(OnLoad):
-
     @classmethod
     def login_signup(cls) -> Spotify:
         sp = None
@@ -75,7 +70,6 @@ class OnLoadSpotify(OnLoad):
 
 
 class SpotifyAPICall:
-
     @classmethod
     def _call(cls, func: type, params=None, inp=None):
         """Routing all the API calls here for mocking and rate limits"""
@@ -87,23 +81,20 @@ class SpotifyAPICall:
             if inp is None:
                 return func()
             return func(inp)
-        else:
-            if inp is None:
-                return func(**params)
-            return func(inp, **params)
+        if inp is None:
+            return func(**params)
+        return func(inp, **params)
 
     @classmethod
-    def execute(
-        cls, spot_func: type, limit=20, inp=None, max=2000
-    ) -> list[VMLThing]:
+    def execute(cls, spot_func: type, limit=20, inp=None, mx=2000) -> list[VMLThing]:
         if TEST:
             limit = 2
-            max = 2
+            mx = 2
         items = []
-        for offset in range(0, max, limit):
+        for offset in range(0, mx, limit):
             res = cls._call(
                 spot_func, params={"limit": limit, "offset": offset}, inp=inp
-            )            
+            )
             items.extend(res.get("items"))
             if res["items"] == [] or res["next"] is None:
                 break
@@ -111,7 +102,6 @@ class SpotifyAPICall:
 
 
 class SpotifyGetDate(OnLoadGetType):
-
     @classmethod
     def read(cls, data: str) -> datetime.date:
         lis = [int(i) for i in data.split("-")]
@@ -122,7 +112,6 @@ class SpotifyGetDate(OnLoadGetType):
 
 
 class SpotifyGetUser(OnLoadGetType):
-
     @classmethod
     def read(cls, data: dict) -> User:
         return User.get_or_create(
@@ -135,7 +124,6 @@ class SpotifyGetUser(OnLoadGetType):
 
 
 class SpotifyGetCommonDict(OnLoadGetType):
-
     @classmethod
     def read(cls, data: dict) -> dict:
         it = {}
@@ -155,25 +143,22 @@ class SpotifyGetCommonDict(OnLoadGetType):
             arts = data.get("artists")
             it["artist"] = SpotifyGetCommonDict.read(arts[0])
             it["artist_sec"] = (
-                SpotifyGetCommonDict.read(arts[1])
-                if len(arts) > 1
-                else None
+                SpotifyGetCommonDict.read(arts[1]) if len(arts) > 1 else None
             )
         return it
 
 
 class SpotifyGetTracks(OnLoadGetType):
-
     @classmethod
     def retrieve(cls, sp: Spotify = None) -> list[Track]:
         sp = OnLoadSpotify.login_signup() if sp is None else sp
-        
+
         ini_tracks = SpotifyAPICall.execute(sp.current_user_top_tracks)
         tracks = [cls.read(track) for track in ini_tracks]
-        
+
         ini_tracks2 = SpotifyAPICall.execute(sp.current_user_saved_tracks)
         tracks.extend([cls.read(track) for track in ini_tracks2])
-        
+
         return tracks
 
     @classmethod
@@ -196,11 +181,10 @@ class SpotifyGetTracks(OnLoadGetType):
 
 
 class SpotifyGetAlbums(OnLoadGetType):
-
     @classmethod
     def retrieve(cls, sp: Spotify = None) -> list[Album]:
         sp = OnLoadSpotify.login_signup() if sp is None else sp
-        
+
         ini_albums = SpotifyAPICall.execute(sp.current_user_saved_albums)
         return [cls.read(album) for album in ini_albums]
 
@@ -208,14 +192,13 @@ class SpotifyGetAlbums(OnLoadGetType):
     def read(cls, data: dict) -> Album:
         if "album" in data.keys():
             data = data.get("album")
-        
+
         alb = SpotifyGetCommonDict.read(data)
 
         alb["release_type"] = ReleaseTypeEnum.get_enum(data.get("album_type"))
         if alb["release_type"] == ReleaseTypeEnum.COMPILATION:
-            alb["artist"] = SpotifyGetArtists.read(
-                            { 'artists': [ { 'name': 'Various' } ] })
-        
+            alb["artist"] = SpotifyGetArtists.read({"artists": [{"name": "Various"}]})
+
         alb["label"] = data.get("label")
         alb["date"] = SpotifyGetDate.read(data.get("release_date"))
 
@@ -228,13 +211,12 @@ class SpotifyGetAlbums(OnLoadGetType):
 
 
 class SpotifyGetPlaylists(OnLoadGetType):
-
     @classmethod
     def retrieve(cls, sp: Spotify = None) -> list[Playlist]:
         sp = OnLoadSpotify.login_signup() if sp is None else sp
         ini_pls = SpotifyAPICall.execute(sp.current_user_playlists)
         pls = [cls.read(pl) for pl in ini_pls]
-        
+
         for pl in pls:
             if pl.tracklist == []:
                 pl_trls = SpotifyAPICall.execute(
@@ -254,7 +236,6 @@ class SpotifyGetPlaylists(OnLoadGetType):
 
 
 class SpotifyGetArtists(OnLoadGetType):
-
     @classmethod
     def retrieve(cls, sp: Spotify = None) -> list[Artist]:
         sp = OnLoadSpotify.login_signup() if sp is None else sp
@@ -267,25 +248,22 @@ class SpotifyGetArtists(OnLoadGetType):
 
 
 class SpotifyGetGenres(OnLoadGetType):
-
     @classmethod
     def read(data: str) -> Genre:
-        return Genre.get_or_create({"name": item})
+        return Genre.get_or_create({"name": data})
 
 
-    # @classmethod
-    # def get_related_artists(art_id: str) -> list[Artist]:
-    #     # artist_related_artists(artist_id)
-    #     pass
+# def get_related_artists(art_id: str) -> list[Artist]:
+#     # artist_related_artists(artist_id)
+#     pass
 
-    # @classmethod
-    # def _get_extended_library(lib: Library) -> Library:
-    #     pass
+# def _get_extended_library(lib: Library) -> Library:
+#     pass
 
 
-    # def _append_to_read(obj: VMLThing) -> None:
-    #     # Add a cache and only append if not in cache
-    #     _lib_to_read.add(obj)
+# def _append_to_read(obj: VMLThing) -> None:
+#     # Add a cache and only append if not in cache
+#     _lib_to_read.add(obj)
 
 # # Get Tracks' Audio Features
 # # Get audio features for multiple tracks based on their Spotify IDs.

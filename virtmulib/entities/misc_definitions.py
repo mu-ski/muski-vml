@@ -16,7 +16,6 @@ class MusicModelAttributeEnum(StrEnum):
 
 class MusicModel(BaseModel):
     model_config = ConfigDict(extra="allow", validate_assignment=True)
-    pass
 
 
 # class SimpleDate:
@@ -64,12 +63,12 @@ class AIAgentSetup(BaseModel):
     setup: Optional[str] = None
 
 
-"""
-From: https://stackoverflow.com/questions/76686888/using-bson-objectid-in-pydantic-v2/77105412#77105412
-"""
-
-
 class PyObjectId(str):
+    """
+    From: https://stackoverflow.com/questions/76686888/using-bson-objectid-in-pydantic-v2/77105412#77105412
+
+    """
+
     @classmethod
     def __get_pydantic_core_schema__(
         cls, _source_type: Any, _handler: Any

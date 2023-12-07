@@ -22,8 +22,9 @@ will certainly be affected."
 from abc import ABC
 from attrs import define
 
-from virtmulib.entities import Playlist, Album, Track, Library, Artist, VMLThing
-from virtmulib.applogic.onloader import OnLoad, OnLoaderAuthError
+from virtmulib.entities import VMLThing
+from virtmulib.applogic.onloader import OnLoaderAuthError
+
 
 @define
 class OnloaderAction(ABC):
@@ -38,21 +39,26 @@ class OnloaderAction(ABC):
             print(str(e))
             return None
 
+
 @define
 class GetUserData(OnloaderAction):
     f_name: str = "login_onload_user_data"
+
 
 @define
 class GetUserDataPlaylists(OnloaderAction):
     f_name: str = "get_playlists"
 
+
 @define
 class GetUserDataAlbums(OnloaderAction):
     f_name: str = "get_albums"
 
+
 @define
 class GetUserDataTracks(OnloaderAction):
     f_name: str = "get_tracks"
+
 
 @define
 class GetUserDataArtists(OnloaderAction):
