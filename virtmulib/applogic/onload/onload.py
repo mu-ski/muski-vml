@@ -39,7 +39,3 @@ class OnLoadGetType(ABC):
     @classmethod
     def read(cls, *args):
         pass
-
-# def _add_to_extended_library(, obj: VMLThing) -> None:
-#     # TODO: Add a cache and only append if not in cache
-#     self._lib.append(obj)

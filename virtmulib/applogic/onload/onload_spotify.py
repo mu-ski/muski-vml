@@ -72,20 +72,6 @@ class OnLoadSpotify(OnLoad):
 class SpotifyAPICall:
     """A class to route all the API calls here for mocking and rate limit control purposes"""
     @classmethod
-    def _call(cls, func: type, params=None, inp=None):
-        global CNT
-        # if _t is None:
-        #     _t = time.time()
-        CNT += 1
-        if params is None or params == {}:
-            if inp is None:
-                return func()
-            return func(inp)
-        if inp is None:
-            return func(**params)
-        return func(inp, **params)
-
-    @classmethod
     def execute(cls, spot_func: type, limit=20, inp=None, mx=2000) -> list[VMLThing]:
         if TEST:
             limit = 2
@@ -99,6 +85,20 @@ class SpotifyAPICall:
             if res["items"] == [] or res["next"] is None:
                 break
         return items
+
+    @classmethod
+    def _call(cls, func: type, params=None, inp=None):
+        global CNT
+        # if _t is None:
+        #     _t = time.time()
+        CNT += 1
+        if params is None or params == {}:
+            if inp is None:
+                return func()
+            return func(inp)
+        if inp is None:
+            return func(**params)
+        return func(inp, **params)
 
 
 class SpotifyGetDate(OnLoadGetType):
@@ -256,14 +256,6 @@ class SpotifyGetGenres(OnLoadGetType):
 # def get_related_artists(art_id: str) -> list[Artist]:
 #     # artist_related_artists(artist_id)
 #     pass
-
-# def _get_extended_library(lib: Library) -> Library:
-#     pass
-
-
-# def _append_to_read(obj: VMLThing) -> None:
-#     # Add a cache and only append if not in cache
-#     _lib_to_read.add(obj)
 
 # # Get Tracks' Audio Features
 # # Get audio features for multiple tracks based on their Spotify IDs.
