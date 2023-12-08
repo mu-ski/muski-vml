@@ -30,8 +30,10 @@ will certainly be affected."
 """
 
 from virtmulib.applogic.onload import (
-    OnLoad, GetUserData, GetUserDataPlaylists, GetUserDataAlbums,
+    GetUserData, GetUserDataPlaylists, GetUserDataAlbums,
     GetUserDataArtists, GetUserDataTracks)
+
+from virtmulib.applogic.onload.models import OnLoad
 
 
 def get_user_data(onload: OnLoad):

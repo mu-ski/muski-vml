@@ -14,7 +14,9 @@ from virtmulib.entities import (
 )
 
 from virtmulib.entities import ReleaseTypeEnum
-from virtmulib.applogic.onload import OnLoad, OnLoadAuthError, OnLoadGetType
+from virtmulib.applogic.onload.models import (
+            OnLoad, OnLoadAuthError, OnLoadGetType)
+
 
 SCOPES = [
     "user-library-read",
