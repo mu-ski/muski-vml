@@ -1,1 +1,1 @@
-from virtmulib.entities.models import *
+from virtmulib.entities.entities import *
