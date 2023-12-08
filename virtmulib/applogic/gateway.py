@@ -6,7 +6,7 @@ These actions are what is tested in unit testing, each use-case is a unit.
 This module is a kind of abstraction/interface and gateway layer 
 with no new logic and just calls to the respective underlying functionality.
 
-If you are like me, this is probably the best place to start reading the code.
+This is probably the best place to start reading the code.
 
 This module is part of the application logic layer in the clean architecture:
 
@@ -29,24 +29,25 @@ will certainly be affected."
 
 """
 
-from virtmulib.applogic.onload import (
-    GetUserData, GetUserDataPlaylists, GetUserDataAlbums,
-    GetUserDataArtists, GetUserDataTracks)
-
-from virtmulib.applogic.onload.models import OnLoad
+import virtmulib.applogic.onload.gateway as onload_gateway
+from virtmulib.applogic.onload.abstract import OnLoad
 
 
-def get_user_data(onload: OnLoad):
-    return GetUserData(onload).execute()
+def get_user_data(onload_type: OnLoad):
+    return onload_gateway.GetUserData(onload_type).execute()
 
-def get_user_playlists(onload: OnLoad):
-    return GetUserDataPlaylists(onload).execute()
 
-def get_user_albums(onload: OnLoad):
-    return GetUserDataAlbums(onload).execute()
+def get_user_playlists(onload_type: OnLoad):
+    return onload_gateway.GetUserDataPlaylists(onload_type).execute()
 
-def get_user_artists(onload: OnLoad):
-    return GetUserDataArtists(onload).execute()
 
-def get_user_tracks(onload: OnLoad):
-    return GetUserDataTracks(onload).execute()
+def get_user_albums(onload_type: OnLoad):
+    return onload_gateway.GetUserDataAlbums(onload_type).execute()
+
+
+def get_user_artists(onload_type: OnLoad):
+    return onload_gateway.GetUserDataArtists(onload_type).execute()
+
+
+def get_user_tracks(onload_type: OnLoad):
+    return onload_gateway.GetUserDataTracks(onload_type).execute()

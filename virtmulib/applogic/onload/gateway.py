@@ -8,14 +8,15 @@ from abc import ABC, abstractmethod
 from attrs import define
 from enum import Enum
 
-from virtmulib.entities import (
-        Playlist, Album, Track, Artist, User)
+from virtmulib.entities import Playlist, Album, Track, Artist, User
 
-from virtmulib.applogic.onload.models import OnLoad, OnLoadAuthError
+from virtmulib.applogic.onload.abstract import OnLoad, OnLoadAuthError
+
 
 @define
 class GetUserData:
     on_load: OnLoad
+
     def execute(self) -> list[User] | None:
         "Calls the corresponding function in the onLoad class."
         try:
@@ -28,6 +29,7 @@ class GetUserData:
 @define
 class GetUserDataPlaylists:
     on_load: OnLoad
+
     def execute(self) -> list[Playlist] | None:
         "Calls the corresponding function in the onLoad class."
         try:
@@ -37,10 +39,10 @@ class GetUserDataPlaylists:
             return None
 
 
-
 @define
 class GetUserDataAlbums:
     on_load: OnLoad
+
     def execute(self) -> list[Album] | None:
         "Calls the corresponding function in the onLoad class."
         try:
@@ -50,10 +52,10 @@ class GetUserDataAlbums:
             return None
 
 
-
 @define
 class GetUserDataTracks:
     on_load: OnLoad
+
     def execute(self) -> list[Track] | None:
         "Calls the corresponding function in the onLoad class."
         try:
@@ -66,6 +68,7 @@ class GetUserDataTracks:
 @define
 class GetUserDataArtists:
     on_load: OnLoad
+
     def execute(self) -> list[Artist] | None:
         "Calls the corresponding function in the onLoad class."
         try:
@@ -73,4 +76,3 @@ class GetUserDataArtists:
         except OnLoadAuthError as e:
             print(str(e))
             return None
-

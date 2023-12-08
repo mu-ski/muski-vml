@@ -3,13 +3,12 @@ def create_namedtuple_from_dict(obj):
     if isinstance(obj, dict):
         fields = sorted(obj.keys())
         namedtuple_type = namedtuple(
-            typename='TestData',
+            typename="TestData",
             field_names=fields,
             rename=True,
         )
         field_value_pairs = OrderedDict(
-            (str(field), create_namedtuple_from_dict(obj[field]))
-            for field in fields
+            (str(field), create_namedtuple_from_dict(obj[field])) for field in fields
         )
         try:
             return namedtuple_type(**field_value_pairs)
@@ -20,10 +19,12 @@ def create_namedtuple_from_dict(obj):
         return [create_namedtuple_from_dict(item) for item in obj]
     else:
         return obj
+
+
 def inject_test_data(file):
     """
-        Read the content of the JSON file and convert it to a named tuple,
-        can be used for injecting test data set to tests, helps in separating test data from the tests
+    Read the content of the JSON file and convert it to a named tuple,
+    can be used for injecting test data set to tests, helps in separating test data from the tests
     """
     file = str(RESOURCES_PATH.joinpath(file))
     with open(file) as f:

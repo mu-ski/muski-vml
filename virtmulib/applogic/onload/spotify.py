@@ -14,9 +14,7 @@ from virtmulib.entities import (
 )
 
 from virtmulib.entities import ReleaseTypeEnum
-from virtmulib.applogic.onload.models import (
-            OnLoad, OnLoadAuthError, OnLoadGetType)
-
+from virtmulib.applogic.onload.abstract import OnLoad, OnLoadAuthError, OnLoadGetType
 
 SCOPES = [
     "user-library-read",
@@ -79,23 +77,27 @@ class SpotifyAPICall:
             res = cls._call(
                 spot_func, params={"limit": limit, "offset": offset}, inp=inp
             )
+
             items.extend(res.get("items"))
+
             if res["items"] == [] or res["next"] is None:
                 break
+
         return items
 
     @classmethod
     def _call(cls, func: type, params=None, inp=None) -> dict:
         global CNT
-        # if _t is None:
-        #     _t = time.time()
         CNT += 1
+
         if params is None or params == {}:
             if inp is None:
                 return func()
             return func(inp)
+
         if inp is None:
             return func(**params)
+
         return func(inp, **params)
 
 
@@ -103,9 +105,11 @@ class SpotifyGetDate(OnLoadGetType):
     @classmethod
     def read(cls, data: str) -> datetime.date:
         lis = [int(i) for i in data.split("-")]
+
         if len(lis) < 3:
             default_date = [1900, 1, 1]
             lis.extend(default_date[len(lis) :])
+
         return datetime.date(*lis)
 
 
@@ -162,18 +166,24 @@ class SpotifyGetTracks(OnLoadGetType):
     def read(cls, data: dict, alb=None) -> Track:
         if "track" in data.keys():
             data = data.get("track")
+
         t = SpotifyGetCommonDict.read(data)
+
         if "external_ids" in data.keys():
             t["ext_ids"]["upc"] = data.get("external_ids").get("upc")
             t["ext_ids"]["isrc"] = data.get("external_ids").get("isrc")
+
         tr = Track.get_or_create(t)
+
         if alb is None and "album" in data.keys():
             al = data.get("album")
             al["artist"] = t["artist"]
             alb = SpotifyGetAlbums.read(al)
             tr.albums.append(alb)
+
         if alb.date < tr.date:
             tr.date = alb.date
+
         return tr
 
 
@@ -189,6 +199,7 @@ class SpotifyGetAlbums(OnLoadGetType):
     def read(cls, data: dict) -> Album:
         if "album" in data.keys():
             data = data.get("album")
+
         alb = SpotifyGetCommonDict.read(data)
 
         alb["release_type"] = ReleaseTypeEnum.get_enum(data.get("album_type"))
@@ -196,10 +207,12 @@ class SpotifyGetAlbums(OnLoadGetType):
         alb["date"] = SpotifyGetDate.read(data.get("release_date"))
 
         alb_obj = Album.get_or_create(alb)
+
         if alb_obj.tracklist == [] and "tracks" in data.keys():
             items = data.get("tracks").get("items")
             trklst = [SpotifyGetTracks.read(itm, alb_obj) for itm in items]
             alb_obj.tracklist = trklst
+
         return alb_obj
 
 
@@ -223,8 +236,10 @@ class SpotifyGetPlaylists(OnLoadGetType):
     @classmethod
     def read(cls, data: dict) -> Playlist:
         pl = SpotifyGetCommonDict.read(data)
+
         pl["description"] = data.get("description")
         pl["creator"] = SpotifyGetUser.read(data.get("owner"))
+
         return Playlist.get_or_create(pl)
 
 
@@ -232,7 +247,9 @@ class SpotifyGetArtists(OnLoadGetType):
     @classmethod
     def retrieve(cls, sp: Spotify = None) -> list[Artist]:
         sp = OnLoadSpotify.login_signup() if sp is None else sp
+
         arts = SpotifyAPICall.execute(sp.current_user_top_artists)
+
         return [cls.read(art) for art in arts]
 
     @classmethod
