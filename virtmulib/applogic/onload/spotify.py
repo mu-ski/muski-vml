@@ -13,8 +13,7 @@ from virtmulib.entities import (
     Genre,
 )
 
-from virtmulib.entities.utils import ReleaseTypeEnum
-
+from virtmulib.entities import ReleaseTypeEnum
 from virtmulib.applogic.onload import OnLoad, OnLoadAuthError, OnLoadGetType
 
 SCOPES = [
@@ -70,6 +69,7 @@ class OnLoadSpotify(OnLoad):
 
 class SpotifyAPICall:
     """A class to route all the API calls here for mocking and rate limit control purposes"""
+
     @classmethod
     def execute(cls, spot_func: type, limit=20, inp=None, mx=2000) -> list[dict]:
         items = []
@@ -132,9 +132,7 @@ class SpotifyGetCommonDict(OnLoadGetType):
 
         if "images" in data.keys():
             imgs = data.get("images")
-            it["thumb"] = (
-                imgs[0].get("url") if len(imgs) != 0 else None
-            )
+            it["thumb"] = imgs[0].get("url") if len(imgs) != 0 else None
 
         if "artists" in data.keys():
             arts = data.get("artists")

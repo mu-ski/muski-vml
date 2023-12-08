@@ -16,6 +16,7 @@ class MusicModel(BaseModel):
 class AIAgentEnum(str, Enum):
     llamma_2_70gb = "llamma_2_70gb"
 
+
 class ReleaseTypeEnum(str, Enum):
     ALBUM = "ALBUM"
     SINGLE = "SINGLE"
@@ -31,8 +32,6 @@ class ReleaseTypeEnum(str, Enum):
         if nm.find("compilation") > -1:
             return ReleaseTypeEnum.COMPILATION
         return None
-
-    
 
 
 class AIAgentSetup(BaseModel):
