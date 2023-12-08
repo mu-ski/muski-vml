@@ -17,7 +17,6 @@ from virtmulib.entities.utils import ReleaseTypeEnum
 
 from virtmulib.applogic.onload import OnLoad, OnLoadAuthError, OnLoadGetType
 
-TEST = True
 SCOPES = [
     "user-library-read",
     "user-follow-read",
@@ -39,7 +38,7 @@ class OnLoadSpotify(OnLoad):
         return sp
 
     @classmethod
-    def login_onload_user_data(cls) -> None:
+    def login_onload_user_data(cls) -> User:
         sp = OnLoadSpotify.login_signup()
         if sp is not None:
             user = SpotifyGetUser.read(sp.me())
@@ -72,10 +71,7 @@ class OnLoadSpotify(OnLoad):
 class SpotifyAPICall:
     """A class to route all the API calls here for mocking and rate limit control purposes"""
     @classmethod
-    def execute(cls, spot_func: type, limit=20, inp=None, mx=2000) -> list[VMLThing]:
-        if TEST:
-            limit = 2
-            mx = 2
+    def execute(cls, spot_func: type, limit=20, inp=None, mx=2000) -> list[dict]:
         items = []
         for offset in range(0, mx, limit):
             res = cls._call(
@@ -87,7 +83,7 @@ class SpotifyAPICall:
         return items
 
     @classmethod
-    def _call(cls, func: type, params=None, inp=None):
+    def _call(cls, func: type, params=None, inp=None) -> dict:
         global CNT
         # if _t is None:
         #     _t = time.time()
@@ -134,10 +130,11 @@ class SpotifyGetCommonDict(OnLoadGetType):
             grs = [SpotifyGetGenres.read(g) for g in data["genres"]]
             it["genres"] = grs
 
-        imgs = data.get("images")
-        it["thumb"] = (
-            imgs[0].get("url") if imgs is not None and len(imgs) != 0 else None
-        )
+        if "images" in data.keys():
+            imgs = data.get("images")
+            it["thumb"] = (
+                imgs[0].get("url") if len(imgs) != 0 else None
+            )
 
         if "artists" in data.keys():
             arts = data.get("artists")
@@ -192,13 +189,9 @@ class SpotifyGetAlbums(OnLoadGetType):
     def read(cls, data: dict) -> Album:
         if "album" in data.keys():
             data = data.get("album")
-
         alb = SpotifyGetCommonDict.read(data)
 
         alb["release_type"] = ReleaseTypeEnum.get_enum(data.get("album_type"))
-        if alb["release_type"] == ReleaseTypeEnum.COMPILATION:
-            alb["artist"] = SpotifyGetArtists.read({"artists": [{"name": "Various"}]})
-
         alb["label"] = data.get("label")
         alb["date"] = SpotifyGetDate.read(data.get("release_date"))
 
@@ -249,7 +242,7 @@ class SpotifyGetArtists(OnLoadGetType):
 
 class SpotifyGetGenres(OnLoadGetType):
     @classmethod
-    def read(data: str) -> Genre:
+    def read(cls, data: str) -> Genre:
         return Genre.get_or_create({"name": data})
 
 

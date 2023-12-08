@@ -5,12 +5,7 @@ from bson import ObjectId
 from pydantic_core import core_schema
 
 
-class StrEnum(Enum):
-    def __str__(self):
-        return f"{self.name}"
-
-
-class MusicModelAttributeEnum(StrEnum):
+class MusicModelAttributeEnum(str, Enum):
     pass
 
 
@@ -18,11 +13,10 @@ class MusicModel(BaseModel):
     model_config = ConfigDict(extra="allow", validate_assignment=True)
 
 
-class AIAgentEnum(StrEnum):
+class AIAgentEnum(str, Enum):
     llamma_2_70gb = "llamma_2_70gb"
 
-
-class ReleaseTypeEnum(StrEnum):
+class ReleaseTypeEnum(str, Enum):
     ALBUM = "ALBUM"
     SINGLE = "SINGLE"
     COMPILATION = "COMPILATION"
@@ -37,6 +31,8 @@ class ReleaseTypeEnum(StrEnum):
         if nm.find("compilation") > -1:
             return ReleaseTypeEnum.COMPILATION
         return None
+
+    
 
 
 class AIAgentSetup(BaseModel):

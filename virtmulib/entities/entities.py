@@ -27,11 +27,11 @@ class VMLThing(BaseModel, ABC):
     id: Optional[PyObjectId] = Field(alias="_id", default=None)
     name: str
     thumb: Optional[HttpUrl] = None
-    genres: Optional[list["Genre"]] = None
-    date: Optional[datetime.date] = datetime.date(3000, 1, 1)
+    genres: list["Genre"] = []
+    date: datetime.date = datetime.date(3000, 1, 1)
     popularity: Optional[int] = None
     model: Optional[MusicModel] = None
-    ext_ids: Optional[ExternalIDs] = ExternalIDs()
+    ext_ids: ExternalIDs = ExternalIDs()
     related: Optional[list["VMLThing"]] = []
 
     @classmethod
@@ -45,21 +45,21 @@ class Genre(VMLThing):
 
 
 class Artist(VMLThing):
-    albums: Optional[list["Album"]] = None
-    tracks: Optional[list["Track"]] = None
+    albums: list["Album"] = []
+    tracks: list["Track"] = []
 
 
 class Track(VMLThing):
     artist: Artist
     artist_sec: Optional[Artist] = None
-    albums: Optional[list["Album"]] = []
-    playlists: Optional[list[PyObjectId]] = []
+    albums: list["Album"] = []
+    playlists: list[PyObjectId] = []
 
 
 class Album(VMLThing):
     artist: Artist
     artist_sec: Optional[Artist] = None
-    tracklist: Optional[list[Track]] = []
+    tracklist: list[Track] = []
     label: Optional[str] = None
     release_type: Optional[ReleaseTypeEnum] = None
 
@@ -67,7 +67,7 @@ class Album(VMLThing):
 class Playlist(VMLThing):
     creator: "User"
     ai_agent_setup: Optional[AIAgentSetup] = None
-    tracklist: Optional[list[Track]] = []
+    tracklist: list[Track] = []
     description: Optional[str] = None
 
 
@@ -76,12 +76,12 @@ class Library(VMLThing):
     # Better if something that works with pydantic out of the box
     name: str = ""
     parent: Optional["Library"] = None
-    children: Optional[list["Library"]] = []
-    artists: Optional[list[Artist]] = []
-    playlists: Optional[list[Playlist]] = []
-    albums: Optional[list[Album]] = []
-    tracks: Optional[list[Track]] = []
-    genres: Optional[list[Genre]] = []
+    children: list["Library"] = []
+    artists: list[Artist] = []
+    playlists: list[Playlist] = []
+    albums: list[Album] = []
+    tracks: list[Track] = []
+    genres: list[Genre] = []
 
     def add(self, obj: VMLThing) -> None:
         if isinstance(obj, Album):

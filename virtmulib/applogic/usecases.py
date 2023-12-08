@@ -31,7 +31,7 @@ class OnloaderAction(ABC):
     OnLoad: type
     f_name: str
 
-    def execute(self) -> VMLThing:
+    def execute(self) -> VMLThing | None:
         try:
             func = getattr(self.OnLoad, self.f_name)
             return func()

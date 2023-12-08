@@ -13,7 +13,10 @@ monkeypatch = MonkeyPatch()
 def _obj_to_dict_items(ls: list[VMLThing]) -> str:
     return json.loads(
             json.dumps(
-                {"items": [i.model_dump(exclude_defaults=True) for i in ls]}, default=str))
+                {"items": [
+                    i.model_dump(exclude_defaults=True) 
+                    for i in ls]},
+                default=str))
 
 def _obj_to_dict(obj: VMLThing) -> str:
     return json.loads(
