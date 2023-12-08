@@ -2,7 +2,7 @@ import json
 import pytest
 from _pytest.monkeypatch import MonkeyPatch
 
-import virtmulib.applogic.adapter as usecases
+import virtmulib.applogic.interface as usecases
 from virtmulib.applogic.onload.spotify import SpotifyAPICall, OnLoadSpotify
 from tests.utils import *
 

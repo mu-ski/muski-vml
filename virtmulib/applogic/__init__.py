@@ -1,1 +1,1 @@
-from virtmulib.applogic.adapter import *
+from virtmulib.applogic.interface import *
