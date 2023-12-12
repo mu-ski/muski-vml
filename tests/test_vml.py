@@ -10,12 +10,23 @@ test_data = json.loads(open("tests/json_test_data/test.json", "r").read())
 monkeypatch = MonkeyPatch()
 
 
+from virtmulib.entities import CACHE
+
 @pytest.mark.e2e
 def test_live_get_user_data_spotify():
     # monkeypatch.undo()
     user = usecases.get_user_data(OnLoadSpotify)
+    # print(
+    #     len(user.lib_extended.artists),
+    #     len(user.lib_extended.albums),
+    #     len(user.lib_extended.tracks),
+    #     len(user.lib_extended.playlists))
     obj = json.dumps(obj_to_dict(user))
     assert obj != {}
+    #print(len())
+    #print(len(CACHE))
+    #print(json.dumps(obj_to_dict(user)))
+
 
 
 @pytest.mark.parametrize("input", dict_to_tuples(test_data, "get_playlists"))
@@ -50,7 +61,7 @@ def placeholder_test(input, usecase: type, onload):
 
     out = obj_to_dict_items(usecase(onload))
 
-    # print(json.dumps(out))
-    # print(json.dumps(exp_out))
+    print(json.dumps(out))
+    print(json.dumps(exp_out))
 
     assert exp_out == out

@@ -1,4 +1,5 @@
 import datetime
+from functools import cache
 from spotipy import Spotify
 from spotipy.oauth2 import SpotifyOAuth, SpotifyOauthError
 
@@ -10,7 +11,7 @@ from virtmulib.entities import (
     Library,
     Artist,
     VMLThing,
-    Genre,
+    Genre
 )
 
 from virtmulib.entities import ReleaseTypeEnum
@@ -48,6 +49,9 @@ class OnLoadSpotify(OnLoad):
         arts = cls.get_artists(sp)
 
         user.lib = Library(playlists=pl, artists=arts, albums=albs, tracks=trs)
+
+        user.lib_extended = SpotifyGetExtendedLibrary.retrieve(user.lib)
+
         return user
 
     @classmethod
@@ -73,14 +77,20 @@ class SpotifyAPICall:
     @classmethod
     def execute(cls, spot_func: type, limit=20, inp=None, mx=2000) -> list[dict]:
         items = []
+        key_names = {'items', 'albums', 'artists', 'tracks'}
         for offset in range(0, mx, limit):
             res = cls._call(
                 spot_func, params={"limit": limit, "offset": offset}, inp=inp
             )
+            # if "items" not in res.keys():
+            #     import json
+            #     print(json.dumps(res))
+            key = key_names.intersection(set(res.keys())).pop()
 
-            items.extend(res.get("items"))
-
-            if res["items"] == [] or res["next"] is None:
+            items.extend(res.get(key))
+            if not res[key] \
+                    or "next" not in res.keys() \
+                    or res["next"] is None:
                 break
 
         return items
@@ -98,7 +108,11 @@ class SpotifyAPICall:
         if inp is None:
             return func(**params)
 
-        return func(inp, **params)
+        # some api calls take params, others don't (and return a TypeError)
+        try:
+            return func(inp, **params)
+        except TypeError:
+            return func(inp)
 
 
 class SpotifyGetDate(OnLoadGetType):
@@ -138,7 +152,7 @@ class SpotifyGetCommonDict(OnLoadGetType):
 
         if "images" in data.keys():
             imgs = data.get("images")
-            it["thumb"] = imgs[0].get("url") if len(imgs) != 0 else None
+            it["thumb_url"] = imgs[0].get("url") if len(imgs) != 0 else None
 
         if "artists" in data.keys():
             arts = data.get("artists")
@@ -261,6 +275,62 @@ class SpotifyGetGenres(OnLoadGetType):
     @classmethod
     def read(cls, data: str) -> Genre:
         return Genre.get_or_create({"name": data})
+
+class SpotifyGetExtendedLibrary(OnLoadGetType):
+    @classmethod
+    def retrieve(cls, lib: Library, sp: Spotify = None) -> Library:
+        return SpotifyGetExtendedAlbums.retrieve(lib, sp)
+
+
+class SpotifyGetExtendedAlbums(OnLoadGetType):
+    @classmethod
+    def retrieve(cls, lib: Library, sp: Spotify = None) -> list[Album]:
+        to_get = set()
+        for pl in lib.playlists:
+            for tr in pl.tracklist:
+                for alb in tr.albums:
+                    to_get.add(alb.ext_ids.spotify)
+    
+        to_get.union(cls._get_albums_with_no_tracklist(lib.albums))
+
+        for artist in lib.artists:
+            to_get.union(cls._get_albums_with_no_tracklist(artist.albums))
+
+        for tr in lib.tracks:
+            to_get.union(cls._get_albums_with_no_tracklist(tr.albums))
+
+        sp = OnLoadSpotify.login_signup() if sp is None else sp
+
+        to_get_lis = list(to_get)
+        alb_objs = []
+
+        for offset in range(0, len(to_get_lis), 20):
+            albs = SpotifyAPICall.execute(sp.albums, inp=to_get_lis[offset: offset+20])
+            alb_objs.extend([SpotifyGetAlbums.read(alb) for alb in albs])
+
+
+        # lib_obj = Library(albums=alb_objs[:20])
+        # lis = [alb.name for alb in alb_objs]
+        # lis.sort()
+        # #print(lis)
+        # import json
+        # for i in alb_objs:
+        #     print(i.name)
+        # #    print(json.dumps(i.model_dump(exclude_defaults=True), default=str))
+        #print(json.dumps(lib_obj.model_dump(exclude_defaults=True), default=str))
+        return lib_obj
+    
+    @classmethod
+    def _get_albums_with_no_tracklist(cls, albs: list[Album]) -> set[str]:
+        return set([
+                    alb.ext_ids.spotify 
+                    for alb in albs 
+                    if not alb.tracklist])
+
+
+
+
+
 
 
 # def get_related_artists(art_id: str) -> list[Artist]:

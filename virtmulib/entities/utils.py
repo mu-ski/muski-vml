@@ -5,12 +5,9 @@ from bson import ObjectId
 from pydantic_core import core_schema
 
 
-class MusicModelAttributeEnum(str, Enum):
-    pass
+# class MusicModelAttributeEnum(str, Enum):
+#     pass
 
-
-class MusicModel(BaseModel):
-    model_config = ConfigDict(extra="allow", validate_assignment=True)
 
 
 class AIAgentEnum(str, Enum):
