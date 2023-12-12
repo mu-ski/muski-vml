@@ -48,7 +48,8 @@ class OnLoadSpotify(OnLoad):
         arts = cls.get_artists(sp)
 
         user.lib = Library(playlists=pl, artists=arts, albums=albs, tracks=trs)
-        user.lib_extended = SpotifyGetExtendedLibrary.retrieve(user.lib)
+        
+        # user.lib_extended = SpotifyGetExtendedLibrary.retrieve(user.lib)
 
         return user
 
@@ -272,12 +273,6 @@ class SpotifyGetArtists(OnLoadGetType):
 
 class SpotifyGetExtendedLibrary(OnLoadGetType):
     @classmethod
-    def retrieve(cls, lib: Library, sp: Spotify = None) -> Library:
-        return SpotifyGetExtendedAlbums.retrieve(lib, sp)
-
-
-class SpotifyGetExtendedAlbums(OnLoadGetType):
-    @classmethod
     def retrieve(cls, lib: Library, sp: Spotify = None) -> list[Album]:
         #import json
         #print(json.dumps(lib.model_dump(exclude_defaults=True), default=str))
@@ -303,17 +298,8 @@ class SpotifyGetExtendedAlbums(OnLoadGetType):
         for offset in range(0, len(to_get_lis), 20):
             albs = SpotifyAPICall.execute(sp.albums, inp=to_get_lis[offset: offset+20])
             alb_objs.extend([SpotifyGetAlbums.read(alb) for alb in albs])
-
-
-        #print(alb_objs)
+        
         lib_obj = Library(albums=alb_objs)
-        # lis = [alb.name for alb in alb_objs]
-        # lis.sort()
-        # #print(lis)
-        # for i in alb_objs:
-        #     print(i.name)
-        # #    print(json.dumps(i.model_dump(exclude_defaults=True), default=str))
-        #print(json.dumps(lib_obj.model_dump(exclude_defaults=True), default=str))
         return lib_obj
     
     @classmethod

@@ -122,10 +122,6 @@ class Library(BaseModel):
     parent: Optional["Library"] = None
     children: list["Library"] = []
 
-    @classmethod
-    def get_or_create(cls, data: dict):
-        return cls(**data)
-
     def add_child(self, node: "Library"):
         self.children.append(node)
 

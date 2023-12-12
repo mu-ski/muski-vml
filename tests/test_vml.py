@@ -14,11 +14,6 @@ monkeypatch = MonkeyPatch()
 def test_live_get_user_data_spotify():
     # monkeypatch.undo()
     user = usecases.get_user_data(OnLoadSpotify)
-    print(
-        len(user.lib_extended.artists),
-        len(user.lib_extended.albums),
-        len(user.lib_extended.tracks),
-        len(user.lib_extended.playlists))
     obj = json.dumps(obj_to_dict(user))
     #print(obj)
     assert obj != {}
