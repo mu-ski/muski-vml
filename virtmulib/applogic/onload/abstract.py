@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from virtmulib.entities import VMLThing, Playlist, Album, Track, Library, Artist, User
+from virtmulib.entities import Playlist, Album, Track, Library, Artist, User
 
 
 class OnLoad(ABC):

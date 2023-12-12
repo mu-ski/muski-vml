@@ -9,9 +9,8 @@ from virtmulib.entities import (
     Album,
     Track,
     Library,
-    Artist,
-    VMLThing,
-    Genre
+    Artist
+    #VMLThing
 )
 
 from virtmulib.entities import ReleaseTypeEnum
@@ -49,7 +48,6 @@ class OnLoadSpotify(OnLoad):
         arts = cls.get_artists(sp)
 
         user.lib = Library(playlists=pl, artists=arts, albums=albs, tracks=trs)
-
         user.lib_extended = SpotifyGetExtendedLibrary.retrieve(user.lib)
 
         return user
@@ -148,7 +146,8 @@ class SpotifyGetCommonDict(OnLoadGetType):
 
         if "genres" in data.keys():
             grs = [SpotifyGetGenres.read(g) for g in data["genres"]]
-            it["genres"] = grs
+            #it["genres"] = grs
+            it["music_model"] = {'genres': grs}
 
         if "images" in data.keys():
             imgs = data.get("images")
@@ -195,8 +194,8 @@ class SpotifyGetTracks(OnLoadGetType):
             alb = SpotifyGetAlbums.read(al)
             tr.albums.append(alb)
 
-        if alb.date < tr.date:
-            tr.date = alb.date
+        # if alb.date < tr.date:
+        #     tr.date = alb.date
 
         return tr
 
@@ -218,7 +217,7 @@ class SpotifyGetAlbums(OnLoadGetType):
 
         alb["release_type"] = ReleaseTypeEnum.get_enum(data.get("album_type"))
         alb["label"] = data.get("label")
-        alb["date"] = SpotifyGetDate.read(data.get("release_date"))
+        alb["music_model"] = {"date": SpotifyGetDate.read(data.get("release_date"))}
 
         alb_obj = Album.get_or_create(alb)
 
@@ -271,11 +270,6 @@ class SpotifyGetArtists(OnLoadGetType):
         return Artist.get_or_create(SpotifyGetCommonDict.read(item))
 
 
-class SpotifyGetGenres(OnLoadGetType):
-    @classmethod
-    def read(cls, data: str) -> Genre:
-        return Genre.get_or_create({"name": data})
-
 class SpotifyGetExtendedLibrary(OnLoadGetType):
     @classmethod
     def retrieve(cls, lib: Library, sp: Spotify = None) -> Library:
@@ -285,6 +279,8 @@ class SpotifyGetExtendedLibrary(OnLoadGetType):
 class SpotifyGetExtendedAlbums(OnLoadGetType):
     @classmethod
     def retrieve(cls, lib: Library, sp: Spotify = None) -> list[Album]:
+        #import json
+        #print(json.dumps(lib.model_dump(exclude_defaults=True), default=str))
         to_get = set()
         for pl in lib.playlists:
             for tr in pl.tracklist:
@@ -309,11 +305,11 @@ class SpotifyGetExtendedAlbums(OnLoadGetType):
             alb_objs.extend([SpotifyGetAlbums.read(alb) for alb in albs])
 
 
-        # lib_obj = Library(albums=alb_objs[:20])
+        #print(alb_objs)
+        lib_obj = Library(albums=alb_objs)
         # lis = [alb.name for alb in alb_objs]
         # lis.sort()
         # #print(lis)
-        # import json
         # for i in alb_objs:
         #     print(i.name)
         # #    print(json.dumps(i.model_dump(exclude_defaults=True), default=str))
@@ -322,14 +318,11 @@ class SpotifyGetExtendedAlbums(OnLoadGetType):
     
     @classmethod
     def _get_albums_with_no_tracklist(cls, albs: list[Album]) -> set[str]:
+        #print()
         return set([
                     alb.ext_ids.spotify 
                     for alb in albs 
                     if not alb.tracklist])
-
-
-
-
 
 
 

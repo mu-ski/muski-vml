@@ -1,6 +1,5 @@
 import datetime
 from abc import ABC
-# from functools import cache
 import json
 from typing import Optional
 import json
@@ -12,181 +11,138 @@ from virtmulib.entities.utils import (
     AIAgentSetup
 )
 
+
 class MusicModel(BaseModel):
     model_config = ConfigDict(extra="allow", validate_assignment=True)
-
+    genres: list[str] = []
+    popularity: Optional[int] = None
+    related: Optional[list["BaseModel"]] = []
+    date: datetime.date = datetime.date(3000, 1, 1)
+    
 
 class ExternalIDs(BaseModel):
     model_config = ConfigDict(extra="allow", validate_assignment=True)
-
     musicbrainz: Optional[UUID4] = None
     upc: Optional[str] = None
     isrc: Optional[str] = None
     discogs: Optional[str] = None
     spotify: Optional[str] = None
 
-    # def get_ids_namespaced(self) -> list[str]:
-    #     ids = self.model_dump(exclude_defaults=True)
-    #     ids = set(ids.items())
-    #     return [f'{e[0]}:{e[1]}' for e in ids]
 
-CACHE = {}
-
-
-class VMLThing(BaseModel, ABC):
+class SimpleArtist(BaseModel):
     model_config = ConfigDict(validate_assignment=True)
-
-    genres: list["Genre"] = []
     id: Optional[PyObjectId] = Field(alias="_id", default=None)
     name: str
-    thumb_url: Optional[str] = None
-    date: datetime.date = datetime.date(3000, 1, 1)
-    popularity: Optional[int] = None
-    model: Optional[MusicModel] = None
-    ext_ids: ExternalIDs = ExternalIDs()
-    related: Optional[list["VMLThing"]] = []
-
-
-class VMLThing(BaseModel, ABC):
-    model_config = ConfigDict(validate_assignment=True)
-
-    id: Optional[PyObjectId] = Field(alias="_id", default=None)
-    name: str
-    genres: list["Genre"] = []
-    thumb_url: Optional[str] = None
-    date: datetime.date = datetime.date(3000, 1, 1)
-    popularity: Optional[int] = None
-    model: Optional[MusicModel] = None
-    ext_ids: ExternalIDs = ExternalIDs()
-    related: Optional[list["VMLThing"]] = []
-
-    # @classmethod
-    # def get_or_create_(cls, data: dict):
-    #     #ids = json.dumps(data['ext_ids'])
-    #     for source in data['ext_ids']:
-    #         if data['ext_ids'][source] is not None:
-    #             uri= f'{source}:{data["ext_ids"][source]}'
-    #             if uri in CACHE.keys():
-    #                 return CACHE[uri]
-        
-    #     # Retrieve obj if in DB
-    #     obj = cls(**data)
-        
-    #     ext_ids = obj.ext_ids.model_dump(exclude_defaults=True)
-    #     for source in ext_ids:
-    #         uri= f'{source}:{data["ext_ids"][source]}'
-    #         CACHE[uri] = obj
-
-    #     return obj
+    music_model: Optional[MusicModel] = None
 
     @classmethod
     def get_or_create(cls, data: dict):
-        # ids = {id for id in data['ext_ids'].values() if id is not None}
-        # 
+        return cls(**data)
 
-        for source in data['ext_ids']:
-            if data['ext_ids'][source] is not None:
-                if data['ext_ids'][source] in CACHE.keys():
-                    return CACHE[data['ext_ids'][source]]
-        
-        # Retrieve obj if in DB
-        obj = cls(**data)
-        
-        ext_ids = obj.ext_ids.model_dump(exclude_defaults=True)
-        for id in ext_ids.values():
-            CACHE[id] = obj
 
-        return obj
+class Artist(SimpleArtist):
+    albums: list["SimpleAlbum"] = []
+    tracks: list["SimpleTrack"] = []
+    thumb_url: Optional[str] = None
+    ext_ids: ExternalIDs = ExternalIDs()
+
+
+class SimpleTrack(BaseModel):
+    model_config = ConfigDict(validate_assignment=True)
+    id: Optional[PyObjectId] = Field(alias="_id", default=None)
+    name: str
+    music_model: Optional[MusicModel] = None
+    artist: SimpleArtist
+    albums: list["SimpleAlbum"] = []
 
     @classmethod
-    def get_or_create_simple(cls, data: dict):
-        # ids = {id for id in data['ext_ids'].values() if id is not None}
-        # 
-
-        for source in data['ext_ids']:
-            if data['ext_ids'][source] is not None:
-                if data['ext_ids'][source] in CACHE.keys():
-                    return CACHE[data['ext_ids'][source]]
-        
-        # Retrieve obj if in DB
-        obj = cls(**data)
-        
-        ext_ids = obj.ext_ids.model_dump(exclude_defaults=True)
-        for id in ext_ids.values():
-            CACHE[id] = obj
-
-        return obj
-
-    
-    # @classmethod
-    # @cache
-    # def _get_or_create(cls, data):
-    #     # Retrieve obj if in DB
-    #     return cls(**json.loads(data))
+    def get_or_create(cls, data: dict):
+        return cls(**data)
 
 
-class Genre(VMLThing):
-    pass
+class Track(SimpleTrack):
+    artist_sec: Optional[SimpleArtist] = None
+    occurs_in: list[PyObjectId] = []
+    thumb_url: Optional[str] = None
+    ext_ids: ExternalIDs = ExternalIDs()
 
 
-class Artist(VMLThing):
-    albums: list["VMLThing"] = []
-    tracks: list["VMLThing"] = []
+class SimpleAlbum(BaseModel):
+    model_config = ConfigDict(validate_assignment=True)
+    id: Optional[PyObjectId] = Field(alias="_id", default=None)
+    name: str
+    music_model: Optional[MusicModel] = None
+    artist: SimpleArtist
+    tracklist: list[SimpleTrack] = []
+
+    @classmethod
+    def get_or_create(cls, data: dict):
+        return cls(**data)
 
 
-class Track(VMLThing):
-    artist: VMLThing
-    artist_sec: Optional[VMLThing] = None
-    albums: list["Album"] = []
-    playlists: list[PyObjectId] = []
-
-
-class Album(VMLThing):
-    artist: VMLThing
-    artist_sec: Optional[VMLThing] = None
-    tracklist: list[VMLThing] = []
+class Album(SimpleAlbum):
+    artist_sec: Optional[SimpleArtist] = None
     label: Optional[str] = None
     release_type: Optional[ReleaseTypeEnum] = None
+    thumb_url: Optional[str] = None
+    ext_ids: ExternalIDs = ExternalIDs()
 
 
-class Playlist(VMLThing):
-    creator: "User"
-    ai_agent_setup: Optional[AIAgentSetup] = None
-    tracklist: list[VMLThing] = []
+class SimplePlaylist(BaseModel):
+    model_config = ConfigDict(validate_assignment=True)
+
+    id: Optional[PyObjectId] = Field(alias="_id", default=None)
+    name: str
+    music_model: Optional[MusicModel] = None
+    creator: "SimpleUser"
     description: Optional[str] = None
+    tracklist: list[SimpleTrack] = []
+
+    @classmethod
+    def get_or_create(cls, data: dict):
+        return cls(**data)
 
 
-class Library(VMLThing):
+class Playlist(SimplePlaylist):
+    ai_agent_setup: Optional[AIAgentSetup] = None
+    thumb_url: Optional[str] = None
+    ext_ids: ExternalIDs = ExternalIDs()
+
+
+class Library(BaseModel):
     # Consider using a built tree datasrtuct like bigtree instead
     # Better if something that works with pydantic out of the box
-    name: str = ""
+    id: Optional[PyObjectId] = Field(alias="_id", default=None)
+    music_model: Optional[MusicModel] = None
+    artists: list[SimpleArtist] = []
+    playlists: list[SimplePlaylist] = []
+    albums: list[SimpleAlbum] = []
+    tracks: list[SimpleTrack] = []
+
     parent: Optional["Library"] = None
     children: list["Library"] = []
-    artists: list[VMLThing] = []
-    playlists: list[VMLThing] = []
-    albums: list[VMLThing] = []
-    tracks: list[VMLThing] = []
-    genres: list[VMLThing] = []
 
-    # def add(self, obj: VMLThing) -> None:
-    #     if isinstance(obj, Album):
-    #         self.albums.append(obj)
-    #     elif isinstance(obj, Artist):
-    #         self.artists.append(obj)
-    #     elif isinstance(obj, Playlist):
-    #         self.playlists.append(obj)
-    #     elif isinstance(obj, Track):
-    #         self.tracks.append(obj)
-
-    # def init(self, artists, playlists, albums, tracks):
-    #     """Given a set of lists of music items, initialize the object with thin copies of them"""
-    #     pass
+    @classmethod
+    def get_or_create(cls, data: dict):
+        return cls(**data)
 
     def add_child(self, node: "Library"):
         self.children.append(node)
 
 
-class User(VMLThing):
+class SimpleUser(BaseModel):
+    id: Optional[PyObjectId] = Field(alias="_id", default=None)
+    name: str
+    music_model: Optional[MusicModel] = None
+
+    @classmethod
+    def get_or_create(cls, data: dict):
+        return cls(**data)
+
+
+class User(SimpleUser):
     email: Optional[EmailStr] = None
     lib: Optional[Library] = None
     lib_extended: Optional[Library] = None
+    thumb_url: Optional[str] = None
+    ext_ids: ExternalIDs = ExternalIDs()
