@@ -33,7 +33,6 @@ class SimpleArtist(BaseModel):
     model_config = ConfigDict(validate_assignment=True)
     id: Optional[PyObjectId] = Field(alias="_id", default=None)
     name: str
-    music_model: Optional[MusicModel] = None
 
     @classmethod
     def get_or_create(cls, data: dict):
@@ -41,26 +40,30 @@ class SimpleArtist(BaseModel):
 
 
 class Artist(SimpleArtist):
+    music_model: Optional[MusicModel] = None
     albums: list["SimpleAlbum"] = []
     tracks: list["SimpleTrack"] = []
     thumb_url: Optional[str] = None
     ext_ids: ExternalIDs = ExternalIDs()
 
 
-class SimpleTrack(BaseModel):
+class VerySimpleTrack(BaseModel):
     model_config = ConfigDict(validate_assignment=True)
     id: Optional[PyObjectId] = Field(alias="_id", default=None)
     name: str
-    music_model: Optional[MusicModel] = None
-    artist: SimpleArtist
-    albums: list["SimpleAlbum"] = []
 
     @classmethod
     def get_or_create(cls, data: dict):
         return cls(**data)
 
 
+class SimpleTrack(VerySimpleTrack):
+    artist: SimpleArtist
+
+
 class Track(SimpleTrack):
+    albums: list["SimpleAlbum"] = []
+    music_model: Optional[MusicModel] = None
     artist_sec: Optional[SimpleArtist] = None
     occurs_in: list[PyObjectId] = []
     thumb_url: Optional[str] = None
@@ -71,9 +74,6 @@ class SimpleAlbum(BaseModel):
     model_config = ConfigDict(validate_assignment=True)
     id: Optional[PyObjectId] = Field(alias="_id", default=None)
     name: str
-    music_model: Optional[MusicModel] = None
-    artist: SimpleArtist
-    tracklist: list[SimpleTrack] = []
 
     @classmethod
     def get_or_create(cls, data: dict):
@@ -81,7 +81,10 @@ class SimpleAlbum(BaseModel):
 
 
 class Album(SimpleAlbum):
+    artist: SimpleArtist
     artist_sec: Optional[SimpleArtist] = None
+    tracklist: list[SimpleTrack] = []
+    music_model: Optional[MusicModel] = None
     label: Optional[str] = None
     release_type: Optional[ReleaseTypeEnum] = None
     thumb_url: Optional[str] = None
@@ -93,10 +96,8 @@ class SimplePlaylist(BaseModel):
 
     id: Optional[PyObjectId] = Field(alias="_id", default=None)
     name: str
-    music_model: Optional[MusicModel] = None
     creator: "SimpleUser"
     description: Optional[str] = None
-    tracklist: list[SimpleTrack] = []
 
     @classmethod
     def get_or_create(cls, data: dict):
@@ -104,6 +105,8 @@ class SimplePlaylist(BaseModel):
 
 
 class Playlist(SimplePlaylist):
+    music_model: Optional[MusicModel] = None
+    tracklist: list[SimpleTrack] = []
     ai_agent_setup: Optional[AIAgentSetup] = None
     thumb_url: Optional[str] = None
     ext_ids: ExternalIDs = ExternalIDs()
