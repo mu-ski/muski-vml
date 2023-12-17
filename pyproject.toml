@@ -14,6 +14,8 @@ pymongo = "^4.6.1"
 flake8 = "^6.1.0"
 attrs = "^23.1.0"
 unidecode = "^1.3.7"
+langchain = "^0.0.350"
+replicate = "^0.22.0"
 
 
 [tool.poetry.group.dev.dependencies]

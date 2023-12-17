@@ -37,6 +37,7 @@
 
 
 import os
+import pkgutil
 from langchain.llms.replicate import Replicate
 from langchain.memory import ConversationBufferWindowMemory
 from langchain.chains import LLMChain
@@ -46,6 +47,16 @@ from langchain.prompts import (
     MessagesPlaceholder,
     SystemMessagePromptTemplate,
 )
+
+path = "virtmulib.applogic.ai_playlister"
+setup = None
+try :
+    setup = pkgutil.get_data(path, "llm-setup-secret")
+except FileNotFoundError:
+    setup = pkgutil.get_data(path, "llm-setup")
+setup = setup.decode('utf-8')
+
+
 # from dotenv import load_dotenv
 
 # Load environment variables
@@ -56,20 +67,20 @@ os.environ["REPLICATE_API_TOKEN"] = REPLICATE_API_TOKEN
 
 llm_model ="meta/llama-2-7b-chat:13c3cdee13ee059ab779f0291d29054dab00a47dad8261375654de5540165fb0"
 
-temperature = 0.5
-top_p = 1
+temperature = 0.75
+top_p = 0.9
 max_length = 128
 #top_k = 50
-max_new_tokens = 500
+max_new_tokens = 800
 min_new_tokens = -1
 repetition_penalty = 1
 debug = False
 
 
+
 llm = Replicate(
     model=llm_model,
     #replicate_api_token=REPLICATE_API_TOKEN,
-    #api_token=REPLICATE_API_TOKEN,
     streaming=False,
     model_kwargs={
         "temperature": temperature, "max_length": max_length, "top_p": top_p,
@@ -101,8 +112,8 @@ chat_history = []
 user_query = 'How many stars are in the solar system?'
 
 #if user_query:
-user_response = {"role": "user", "content": user_query}
-chat_history.append(user_response)
+#user_response = {"role": "user", "content": user_query}
+#chat_history.append(user_response)
 
 response = conversation({"question": user_query})
 bot_response = response["text"]
