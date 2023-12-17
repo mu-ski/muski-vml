@@ -28,6 +28,7 @@ class ExternalIDs(BaseModel):
     discogs: Optional[str] = None
     spotify: Optional[str] = None
 
+#class VMLThing(BaseModel):
 
 class SimpleArtist(BaseModel):
     model_config = ConfigDict(validate_assignment=True)
@@ -47,24 +48,21 @@ class Artist(SimpleArtist):
     ext_ids: ExternalIDs = ExternalIDs()
 
 
-class VerySimpleTrack(BaseModel):
+class SimpleTrack(BaseModel):
     model_config = ConfigDict(validate_assignment=True)
     id: Optional[PyObjectId] = Field(alias="_id", default=None)
     name: str
+    artist: SimpleArtist
+    artist_sec: Optional[SimpleArtist] = None
 
     @classmethod
     def get_or_create(cls, data: dict):
         return cls(**data)
 
 
-class SimpleTrack(VerySimpleTrack):
-    artist: SimpleArtist
-
-
 class Track(SimpleTrack):
     albums: list["SimpleAlbum"] = []
     music_model: Optional[MusicModel] = None
-    artist_sec: Optional[SimpleArtist] = None
     occurs_in: list[PyObjectId] = []
     thumb_url: Optional[str] = None
     ext_ids: ExternalIDs = ExternalIDs()
@@ -127,6 +125,14 @@ class Library(BaseModel):
 
     def add_child(self, node: "Library"):
         self.children.append(node)
+
+    # def get_top_tracks(self):
+    #     return self.get_top(self.tracks)
+
+    # def get_top(self, lis: list[BaseModel]) -> str:
+    #     cache = {}
+    #     for i in lis:
+
 
 
 class SimpleUser(BaseModel):
