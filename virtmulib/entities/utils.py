@@ -18,6 +18,7 @@ class ReleaseTypeEnum(str, Enum):
     ALBUM = "ALBUM"
     SINGLE = "SINGLE"
     COMPILATION = "COMPILATION"
+    PLAYLIST = "PLAYLIST"
 
     @classmethod
     def get_enum(cls, name: str) -> "ReleaseTypeEnum":
@@ -27,6 +28,8 @@ class ReleaseTypeEnum(str, Enum):
         if nm.find("single") > -1:
             return ReleaseTypeEnum.SINGLE
         if nm.find("compilation") > -1:
+            return ReleaseTypeEnum.COMPILATION
+        if nm.find("playlist") > -1:
             return ReleaseTypeEnum.COMPILATION
         return None
 

@@ -34,7 +34,7 @@ def login_signup():
     return sp
 
 
-def make_playlist(tracklist, title):
+def make_playlist(title, tracklist):
     sp = login_signup()
     user = sp.me()
     user_display = user["display_name"]
@@ -51,6 +51,7 @@ def make_playlist(tracklist, title):
     pl = sp.user_playlist_create(user=user['id'],name=pl_title, public=True, collaborative=False, description=pl_desc)
     playlist_id = pl['id']
     sp.playlist_add_items(playlist_id, hit_ls)
+    return playlist_id
 
 
 def search_top_hit(tr, sp):

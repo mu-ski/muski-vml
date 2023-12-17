@@ -1,6 +1,8 @@
 import os
 import pkgutil
+import re
 from ast import literal_eval
+from replicate.exceptions import ReplicateError
 from langchain.llms.replicate import Replicate
 from langchain.memory import ConversationBufferWindowMemory
 from langchain.chains import LLMChain
@@ -74,6 +76,21 @@ def setup_llm_conversation():
     conversation = LLMChain(llm=llm, prompt=prompt, verbose=True, memory=memory)
     return conversation
 
+def format_output(out):
+    out = out.replace('\\n', '\n')
+    out = out.replace('\\', "'")
+    title_p = re.compile(r'\# (.+)')
+    track_p = re.compile(r'\d+\. (.+)')
+    title = None
+    tracks = []
+    for line in out.split(os.linesep.format()):
+        tr = track_p.findall(line)
+        if tr:
+            tracks.append(tr[0])
+        elif title_p.findall(line):
+            title = line.split('#')[1].strip()
+    return title, tracks
+
 def inference(user_query):
     conversation = setup_llm_conversation()
     #chat_history = []
@@ -92,13 +109,18 @@ def inference(user_query):
     #if user_query:
     #user_response = {"role": "user", "content": user_query}
     #chat_history.append(user_response)
+    response = None
+    try:
+        response = conversation({"question": user_query})
+    except ReplicateError as e:
+        print(str(e))
+        return None
 
-    response = conversation({"question": user_query})
     bot_response = response["text"]
     bot_response = {"role": "bot", "content": bot_response}
     #chat_history.append(bot_response)
 
     response = bot_response['content']
 
-    return literal_eval(response)
+    return format_output(repr(response))
     # return literal_eval(response)
