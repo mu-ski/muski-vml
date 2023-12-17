@@ -65,9 +65,11 @@ REPLICATE_API_TOKEN = "r8_Ov0OC3rWmSvfRhp6DHhh694DgF2UhT40dZEIt"
 
 os.environ["REPLICATE_API_TOKEN"] = REPLICATE_API_TOKEN
 
-llm_model ="meta/llama-2-7b-chat:13c3cdee13ee059ab779f0291d29054dab00a47dad8261375654de5540165fb0"
+#llm_model ="meta/llama-2-7b-chat:13c3cdee13ee059ab779f0291d29054dab00a47dad8261375654de5540165fb0"
+llm_model ="meta/llama-2-70b-chat:02e509c789964a7ea8736978a43525956ef40397be9033abf9fd2badfe68c9e3"
+#llm_model ="meta/llama-2-13b-chat:f4e2de70d66816a838a89eeeb621910adffb0dd0baba3976c96980970978018d"
 
-temperature = 0.75
+temperature = 0.80
 top_p = 0.9
 max_length = 128
 #top_k = 50
@@ -90,10 +92,11 @@ llm = Replicate(
     },
 )
 
+
 prompt = ChatPromptTemplate(
     messages=[
         SystemMessagePromptTemplate.from_template(
-            "Answer the following question: {question}"
+            setup
         ),
         MessagesPlaceholder(variable_name="chat_history"),
         HumanMessagePromptTemplate.from_template("{question},")
@@ -101,7 +104,7 @@ prompt = ChatPromptTemplate(
 )
 
 memory = ConversationBufferWindowMemory(
-    memory_key="chat_history", return_messages=True, k=2, input_key="question"
+    memory_key="chat_history", return_messages=True, k=2,key="question"
 )
 
 conversation = LLMChain(llm=llm, prompt=prompt, verbose=True, memory=memory)
@@ -109,8 +112,16 @@ conversation = LLMChain(llm=llm, prompt=prompt, verbose=True, memory=memory)
 chat_history = []
 
 #user_query = st.text_input('You:', '')
-user_query = 'How many stars are in the solar system?'
+#user_query = 'How many stars are in the solar system?'
 
+user_query = """
+Top artists: Mos Def, Laika, Miles Davis, 
+Top songs: Herbie Hancock - Maiden Voyage, Laika - Praire Dog
+What music means to me: Music is what I listen to when I need to discover new feelings and new imagination
+Liked Music: I like many kinds of music, as long as its creative, emotional, and midtempo. I like world music, I like african american music in general.
+Music not liked: I typically don't like rock music, but there are exceptions, typically open-minded artists that are self-conscious of the role of the west in colonalism.
+Playlist request: It is a nice sunny sunday in december and I would like to listen to some creative and relaxed world music
+"""
 #if user_query:
 #user_response = {"role": "user", "content": user_query}
 #chat_history.append(user_response)
@@ -119,7 +130,12 @@ response = conversation({"question": user_query})
 bot_response = response["text"]
 bot_response = {"role": "bot", "content": bot_response}
 chat_history.append(bot_response)
-print(bot_response)
+
+response = bot_response['content']
+
+from ast import literal_eval
+
+print(literal_eval(response))
 
 
 

@@ -36,63 +36,41 @@ def login_signup():
 
 def make_playlist(tracklist, title):
     sp = login_signup()
-    # scope = 'playlist-modify-public'
-    # username = 'z6uxnjgt70r30gea6ykxr92eq'
-    # sp = spotipy.Spotify(
-    #     auth_manager=SpotifyOAuth(
-    #         scope=scope,
-    #         #client_id=client_id,
-    #         #client_secret=client_secret,
-    #         #redirect_uri='http://localhost:8888/callback/',
-    #         username=username
-    #     )
-    # )
     user = sp.me()
     user_display = user["display_name"]
-    #theme = "The Residents (II)"
     pl_title = title + " (A MuWiz list)"
-    
     pl_desc = "Custom made for " + user_display + " by the MuWiz discovery platform"
-    pl = sp.user_playlist_create(user=user['id'],name=pl_title, public=True, collaborative=False, description=pl_desc)
-    playlist_id = pl['id']
-    #playlist_id = '7gFNxShDnCQb3pcEeIlJO8'
     
-    
-    #tr_ls = tracklist.iter()
     hit_ls = []
     for tr in tracklist:
-        print(tr)
         tr_hit = search_top_hit(tr, sp)
         if tr_hit != None:
             hit_ls.append(tr_hit)
-        #sleep( 1 )
+    
+    
+    pl = sp.user_playlist_create(user=user['id'],name=pl_title, public=True, collaborative=False, description=pl_desc)
+    playlist_id = pl['id']
     sp.playlist_add_items(playlist_id, hit_ls)
-    #sp.user_playlist_add_tracks(sp.me()['id'], playlist_id, hit_ls)
 
 
 def search_top_hit(tr, sp):
-    #spotify = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials())
-    s = sp.search(tr, type='track')
-    
-    
-    trk_mtch = format_track_match(s['tracks']['items'][0])
-    trk_id = s['tracks']['items'][0]['uri']
-    
-    if utils.two_in(trk_mtch, tr):
-        return trk_id
+    results = sp.search(tr, type='track')
+    track = tuple(tr.split(' - '))
 
+    for i in range(0,1):
+        trk_id, match = get_hit_num(i, results)
+        if match_trk(track, match):
+            print('>>{}', (track, match))
+            return trk_id
 
-    trk_mtch = format_track_match(s['tracks']['items'][1])
-    trk_id = s['tracks']['items'][1]['uri']
-    
-    if utils.two_in(trk_mtch, tr):
-        return trk_id
-    
+def get_hit_num(hit, results):
+    return results['tracks']['items'][0]['uri'], format_track_match(results['tracks']['items'][0])
     
 def match_trk(original, match):
-    return utils.two_in(match.get_artist(), original.get_artist()) \
-            and utils.two_in(match.get_song_title(), original.get_song_title()) \
-            and match.get_title().lower().find('karaoke') == -1
-        
+    print(original, match)
+    return utils.two_in(match[0], original[0], limit=1) \
+            and utils.two_in(match[1], original[1], limit=1) \
+            and match[1].lower().find('karaoke') == -1
+
 def format_track_match(i):
-    return i['artists'][0]['name'] + ' - ' + i['name']
+    return i['artists'][0]['name'], i['name']    
