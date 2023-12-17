@@ -34,7 +34,7 @@ def login_signup():
     return sp
 
 
-def make_playlist(tracklist):
+def make_playlist(tracklist, title):
     sp = login_signup()
     # scope = 'playlist-modify-public'
     # username = 'z6uxnjgt70r30gea6ykxr92eq'
@@ -47,16 +47,17 @@ def make_playlist(tracklist):
     #         username=username
     #     )
     # )
-    user_display = "nkas"
-    theme = "The Residents (II)"
-    pl_title = theme + " (A MuWiz list)"
-    pl_desc = "Custom made for " + user_display+ ", by the MuWiz team"
-    pl = sp.user_playlist_create(user=sp.me()['id'],name=pl_title, public=True, collaborative=False, description=pl_desc)
+    user = sp.me()
+    user_display = user["display_name"]
+    #theme = "The Residents (II)"
+    pl_title = title + " (A MuWiz list)"
+    
+    pl_desc = "Custom made for " + user_display + " by the MuWiz discovery platform"
+    pl = sp.user_playlist_create(user=user['id'],name=pl_title, public=True, collaborative=False, description=pl_desc)
     playlist_id = pl['id']
     #playlist_id = '7gFNxShDnCQb3pcEeIlJO8'
     
-    #MuWiz
-
+    
     #tr_ls = tracklist.iter()
     hit_ls = []
     for tr in tracklist:
@@ -89,7 +90,9 @@ def search_top_hit(tr, sp):
     
     
 def match_trk(original, match):
-    return utils.two_in(match.get_artist(), original.get_artist()) and utils.two_in(match.get_song_title(), original.get_song_title()) and match.get_title().lower().find('karaoke') == -1
+    return utils.two_in(match.get_artist(), original.get_artist()) \
+            and utils.two_in(match.get_song_title(), original.get_song_title()) \
+            and match.get_title().lower().find('karaoke') == -1
         
 def format_track_match(i):
     return i['artists'][0]['name'] + ' - ' + i['name']
