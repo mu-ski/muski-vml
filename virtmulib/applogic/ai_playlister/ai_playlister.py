@@ -61,9 +61,9 @@ setup = setup.decode('utf-8')
 
 # Load environment variables
 # load_dotenv()            
-REPLICATE_API_TOKEN = "r8_Ov0OC3rWmSvfRhp6DHhh694DgF2UhT40dZEIt"
+#REPLICATE_API_TOKEN = "r8_Ov0OC3rWmSvfRhp6DHhh694DgF2UhT40dZEIt"
 
-os.environ["REPLICATE_API_TOKEN"] = REPLICATE_API_TOKEN
+#os.environ["REPLICATE_API_TOKEN"] = REPLICATE_API_TOKEN
 
 #llm_model ="meta/llama-2-7b-chat:13c3cdee13ee059ab779f0291d29054dab00a47dad8261375654de5540165fb0"
 llm_model ="meta/llama-2-70b-chat:02e509c789964a7ea8736978a43525956ef40397be9033abf9fd2badfe68c9e3"
