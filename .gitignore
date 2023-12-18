@@ -3,6 +3,7 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+vml.log
 logs/
 
 muski-6b55f-firebase-adminsdk-5ytkl-f0543d62e1.json

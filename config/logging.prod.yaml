@@ -1,0 +1,38 @@
+version: 1
+disable_existing_loggers: false
+formatters:
+  json:
+    (): virtmulib.vml_logging.json_logger_fact
+    format: '%(asctime)s - %(levelname)s - %(name)s - %(funcName)s:%(lineno)d - %(message)s'
+  console:
+    format: '%(asctime)s [%(levelname)s] %(name)s: %(message)s'
+  file:
+    format: '%(asctime)s - %(levelname)s - %(name)s - %(funcName)s:%(lineno)d - %(message)s'
+handlers:
+  console:
+    level: WARNING
+    formatter: console
+    class: logging.StreamHandler
+    stream:  ext://sys.stdout
+  file:
+    level: INFO
+    formatter: json
+    class: logging.FileHandler
+    filename: vml.log
+  firebase:
+    class: virtmulib.vml_logging.CloudLogHandler
+    formatter: json
+    level: INFO
+loggers:
+  '':
+    handlers:
+      - console
+      - file
+      - firebase
+    level: INFO
+    propagate: false
+  file:
+    handlers:
+      - file
+    level: INFO
+    propagate: false
