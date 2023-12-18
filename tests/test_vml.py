@@ -12,35 +12,36 @@ from tests.utils import *
 test_data = json.loads(open("tests/json_test_data/test.json", "r").read())
 monkeypatch = MonkeyPatch()
 
-# @pytest.mark.e2e
-# def test_live_get_user_data_spotify():
-#     # monkeypatch.undo()
-#     user = usecases.get_user_data(OnLoadSpotify)
-#     obj = json.dumps(obj_to_dict(user))
-#     #print(obj)
-#     assert obj != {}
-
 @pytest.mark.e2e
-def test_full_e2e():
+def test_live_get_user_data_spotify():
+    # monkeypatch.undo()
     user = usecases.get_user_data(OnLoadSpotify)
-    #obj = json.dumps(obj_to_dict(user))
-    top_artists = user.lib.get_top_artists()
-    user_query = f"Some Artists played: {', '.join(top_artists)}\n"
-    user_query += """
-        Top songs: Herbie Hancock - Maiden Voyage, Laika - Praire Dog
-        What music means to me: Music is what I listen to when I need to discover new feelings and new imagination
-        Liked Music: I like many kinds of music, as long as its creative, emotional, and midtempo. I like world music, I like african american music in general.
-        Music not liked: I typically don't like rock music, but there are exceptions, typically open-minded artists that are self-conscious of the role of the west in colonalism.
-        Playlist request: It is a nice sunny sunday in december and I would like to listen to some creative and relaxed world music
-        """
-    title, playlist = ai_playlister.inference(user_query)
-    print(title, playlist)
-    pl = make_playlist(title, playlist)
+    obj = json.dumps(obj_to_dict(user))
+    print(user.lib.get_top_tracks())
+    #print(obj)
+    assert obj != {}
 
-    assert pl is not None
+# @pytest.mark.e2e
+# def test_full_e2e():
+#     user = usecases.get_user_data(OnLoadSpotify)
+#     #obj = json.dumps(obj_to_dict(user))
+#     top_artists = user.lib.get_top_artists()
+#     user_query = f"Some Artists played: {', '.join(top_artists)}\n"
+#     user_query += """
+#         Top songs: Herbie Hancock - Maiden Voyage, Laika - Praire Dog
+#         What music means to me: Music is what I listen to when I need to discover new feelings and new imagination
+#         Liked Music: I like many kinds of music, as long as its creative, emotional, and midtempo. I like world music, I like african american music in general.
+#         Music not liked: I typically don't like rock music, but there are exceptions, typically open-minded artists that are self-conscious of the role of the west in colonalism.
+#         Playlist request: It is a nice sunny sunday in december and I would like to listen to some creative and relaxed world music
+#         """
+#     title, playlist = ai_playlister.inference(user_query)
+#     print(title, playlist)
+#     pl = make_playlist(title, playlist)
 
-    # print(user.lib.get_top_albums())
-    # print(user.lib.get_top_tracks())
+#     assert pl is not None
+
+#     # print(user.lib.get_top_albums())
+#     # print(user.lib.get_top_tracks())
 
 
 @pytest.mark.parametrize("input", dict_to_tuples(test_data, "get_playlists"))

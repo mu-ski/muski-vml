@@ -113,9 +113,13 @@ class Library(BaseModel):
     def add_child(self, node: "Library"):
         self.children.append(node)
 
+    def get_top_tracks(self):
+        trs = [f"{tr.artist.name} - {tr.name}" for tr in self.tracks]
+        return trs[:20] if len(trs) >= 20 else trs
+
     def get_top_artists(self):
         arts = {}
-        
+
         # go through the playlists and fetch artists frequency
         for pl in self.playlists:
             arts1 = pl.get_top_artists()

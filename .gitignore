@@ -3,6 +3,10 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+logs/
+
+muski-6b55f-firebase-adminsdk-5ytkl-f0543d62e1.json
+
 llm-setup-secret
 temp.json
 .cache*
@@ -133,6 +137,7 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+.env.secret
 
 # Spyder project settings
 .spyderproject
