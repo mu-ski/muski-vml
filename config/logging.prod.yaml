@@ -27,12 +27,15 @@ loggers:
   '':
     handlers:
       - console
-      - file
+    level: INFO
+    propagate: true
+  firebase:
+    handlers:
       - firebase
     level: INFO
-    propagate: false
+    propagate: true
   file:
     handlers:
       - file
     level: INFO
-    propagate: false
+    propagate: true
