@@ -132,7 +132,7 @@ class SpotifyGetUser(OnLoadGetType):
         return User.get_or_create(
             {
                 "email": data.get("email"),
-                "name": data.get("display_name"),
+                "display_name": data.get("display_name"),
                 "ext_ids": {"spotify": data.get("id")},
             }
         )

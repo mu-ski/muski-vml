@@ -5,17 +5,21 @@ from attrs import define
 class CloudDB:
 
     @abstractmethod
-    def create(self, item: dict):
+    def set(self, item: dict, path):
         pass
 
     @abstractmethod
-    def read(self, item: dict):
+    def push(self, item: dict, path):
         pass
 
     @abstractmethod
-    def update(self, item: dict):
+    def get(self, path):
         pass
 
     @abstractmethod
-    def delete(self, item: dict):
+    def update(self, item: dict, path):
+        pass
+
+    @abstractmethod
+    def delete(self, path):
         pass

@@ -25,18 +25,20 @@ firebase_admin.initialize_app(
         {'databaseURL': os.environ['FIREBASE_DB_URL']})
 
 class FirebaseDBLogger(CloudDB):
-    def create(self, item: dict, path=''):        
-        ref = db.reference(path)
-        ref.push(item)
+
+    def set(self, item: dict, path):
+        return db.reference(path).set(item)
+
+    def push(self, item: dict, path):
+        return db.reference(path).push(item)
+
+    def get(self, path):
+        return db.reference(path).get(path)
+
+    def update(self, item: dict, path):
         pass
 
-    def read(self, item: dict):
-        pass
-
-    def update(self, item: dict):
-        pass
-
-    def delete(self, item: dict):
+    def delete(self, path):
         pass
 
 

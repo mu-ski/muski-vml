@@ -16,7 +16,10 @@ class MusicModel(BaseModel):
     model_config = ConfigDict(extra="allow", validate_assignment=True)
     genres: list[str] = []
     popularity: Optional[int] = None
-    related: Optional[list["BaseModel"]] = []
+    user_request: Optional[str] = None
+    top_artists: Optional[str] = None
+    top_tracks: Optional[str] = None
+    related: Optional[list["VMLThing"]] = []
     date: datetime.date = datetime.date(3000, 1, 1)
     
 
@@ -41,7 +44,7 @@ class SimpleArtist(VMLThing):
 
 class Artist(SimpleArtist):
     music_model: Optional[MusicModel] = None
-    albums: list["SimpleCollection"] = []
+    albums: list["SimpleAlbum"] = []
     tracks: list["SimpleTrack"] = []
     thumb_url: Optional[str] = None
     ext_ids: ExternalIDs = ExternalIDs()
@@ -53,31 +56,17 @@ class SimpleTrack(VMLThing):
 
 
 class Track(SimpleTrack):
-    albums: list["SimpleCollection"] = []
+    albums: list["SimpleAlbum"] = []
     music_model: Optional[MusicModel] = None
     occurs_in: list[PyObjectId] = []
     thumb_url: Optional[str] = None
     ext_ids: ExternalIDs = ExternalIDs()
 
 
-class SimpleCollection(VMLThing):
-    tracklist: list[SimpleTrack] = []
+class SimpleAlbum(VMLThing):
+    pass
 
-    def get_top_artists(self):
-        cache = {}
-        for item in self.tracklist:
-            if item.artist.name not in cache.keys():
-                cache[item.artist.name] = 1
-            else: 
-                cache[item.artist.name] += 1
-        # items = list(cache.items())
-        # items.sort(key=lambda a:a[1])
-        # items = items[-20:] if len(items) > 20 else items
-        return cache
-        #return dict(items)
-
-
-class Album(SimpleCollection):
+class Album(SimpleAlbum):
     artist: SimpleArtist
     artist_sec: Optional[SimpleArtist] = None
     tracklist: list[SimpleTrack] = []
@@ -87,14 +76,37 @@ class Album(SimpleCollection):
     ext_ids: ExternalIDs = ExternalIDs()
     release_type: Optional[ReleaseTypeEnum] = None
 
+    def get_top_artists(self):
+        cache = {}
+        for item in self.tracklist:
+            if item.artist.name not in cache.keys():
+                cache[item.artist.name] = 1
+            else: 
+                cache[item.artist.name] += 1
+        return cache
 
-class Playlist(SimpleCollection):
+
+class SimplePlaylist(VMLThing):
+    pass
+
+class Playlist(SimplePlaylist):
     creator: "SimpleUser"
     description: Optional[str] = None
+    tracklist: list[SimpleTrack] = []
     music_model: Optional[MusicModel] = None
     ai_agent_setup: Optional[AIAgentSetup] = None
     thumb_url: Optional[str] = None
     ext_ids: ExternalIDs = ExternalIDs()
+
+    def get_top_artists(self):
+        cache = {}
+        for item in self.tracklist:
+            if item.artist.name not in cache.keys():
+                cache[item.artist.name] = 1
+            else: 
+                cache[item.artist.name] += 1
+        return cache
+
 
 
 class Library(BaseModel):
@@ -103,8 +115,8 @@ class Library(BaseModel):
     id: Optional[PyObjectId] = Field(alias="_id", default=None)
     music_model: Optional[MusicModel] = None
     artists: list[SimpleArtist] = []
-    playlists: list[SimpleCollection] = []
-    albums: list[SimpleCollection] = []
+    playlists: list[SimplePlaylist] = []
+    albums: list[SimpleAlbum] = []
     tracks: list[SimpleTrack] = []
 
     parent: Optional["Library"] = None
@@ -162,7 +174,7 @@ class Library(BaseModel):
 
 class SimpleUser(BaseModel):
     id: Optional[PyObjectId] = Field(alias="_id", default=None)
-    name: str
+    display_name: str
     music_model: Optional[MusicModel] = None
 
     @classmethod
@@ -172,7 +184,35 @@ class SimpleUser(BaseModel):
 
 class User(SimpleUser):
     email: Optional[EmailStr] = None
+    
+    #hash of email
+    simple_id: Optional[str] = None
+    first_login: Optional[datetime.datetime] = None
+    last_login: Optional[datetime.datetime] = None
+    num_logins: Optional[int] = None
+    sessions: Optional[list[str]] = None
     lib: Optional[Library] = None
     lib_extended: Optional[Library] = None
     thumb_url: Optional[str] = None
     ext_ids: ExternalIDs = ExternalIDs()
+
+# class Session(BaseModel):
+#     user_simple_id: str
+#     simple_id: str
+#     time: datetime.datetime
+
+class ProgState(BaseModel):
+    VERSION: str
+    PERSIST_USER_LIB: str
+    SPOTIFY_KEY: dict
+    REPLICATE_KEYS: list[str]
+    END_OF_LIFE: str
+    WEBSITE: Optional[str] = None
+    LATEST_NEWS: Optional[str] = None
+    FEEDBACK_URL: Optional[str] = None
+
+    # @classmethod
+    # def load_setup(cls, setup: dict) -> 'ProgState':
+
+
+

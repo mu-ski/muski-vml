@@ -113,7 +113,7 @@ def inference(user_query):
     try:
         response = conversation({"question": user_query})
     except ReplicateError as e:
-        print(str(e))
+        #print(str(e))
         return None
 
     bot_response = response["text"]
