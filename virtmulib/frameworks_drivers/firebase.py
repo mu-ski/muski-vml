@@ -8,19 +8,26 @@ from firebase_admin import credentials, db
 
 from .interface  import CloudDB
 
-firebase_admin.initialize_app(
-    credentials.Certificate(
-        os.environ['FIREBASE_JSON_KEY_PATH']), 
-        {'databaseURL': os.environ['FIREBASE_DB_URL']})
 
-ref = db.reference("logging")
+
+#ref = db.reference("logging")
+# ref2 = ref.child("-Nm0PR4gi16KWmhXMgZq")
+# print(ref2.get())
+
 
 #logger = logging.getLogger(__name__)
+# app = firebase_admin.initialize_app(
+#         credentials.Certificate(os.environ['FIREBASE_JSON_KEY_PATH']), 
+#         {'databaseURL': os.environ['FIREBASE_DB_URL']})
 
+firebase_admin.initialize_app(
+        credentials.Certificate(os.environ['FIREBASE_JSON_KEY_PATH']), 
+        {'databaseURL': os.environ['FIREBASE_DB_URL']})
 
 class FirebaseDBLogger(CloudDB):
-    def create(self, item: dict):
-        ref.set(item)
+    def create(self, item: dict, path=''):        
+        ref = db.reference(path)
+        ref.push(item)
         pass
 
     def read(self, item: dict):

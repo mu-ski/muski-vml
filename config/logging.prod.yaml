@@ -1,5 +1,5 @@
 version: 1
-disable_existing_loggers: false
+disable_existing_loggers: true
 formatters:
   json:
     (): virtmulib.vml_logging.json_logger_fact
@@ -27,15 +27,15 @@ loggers:
   '':
     handlers:
       - console
-    level: INFO
-    propagate: true
-  firebase:
-    handlers:
       - firebase
-    level: INFO
-    propagate: true
-  file:
-    handlers:
       - file
-    level: INFO
+    level: WARNING
     propagate: true
+  # firebase:
+  #   handlers:
+  #   level: DEBUG
+  #   propagate: true
+  # file:
+  #   handlers:
+  #   level: DEBUG
+  #   propagate: true
