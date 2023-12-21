@@ -1,5 +1,5 @@
 version: 1
-disable_existing_loggers: true
+disable_existing_loggers: false
 formatters:
   json:
     (): virtmulib.setup_app.json_logger_fact
@@ -31,6 +31,8 @@ loggers:
       - file
     level: DEBUG
     propagate: true
+  google:
+    propagate: false
   # firebase:
   #   handlers:
   #   level: DEBUG

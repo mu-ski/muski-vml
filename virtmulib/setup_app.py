@@ -34,13 +34,14 @@ def json_logger_fact(format):
 
 def setup_logging_env():
     """Load logging configuration"""
-    log_configs = {"dev": "logging.dev.yaml", "prod": "logging.prog.yaml"}
+    log_configs = {"dev": "logging.dev.yaml", "prod": "logging.prod.yaml"}
     config = log_configs.get(os.environ["ENV"], "logging.dev.yaml")
     config_path = os.path.join(os.environ["CONFIG_DIR"], config)
 
     with open(config_path, 'r') as file:
         logging.config.dictConfig(yaml.safe_load(file))
     
+    #logging.getLogger('google').propagate = False
     #logging.getLogger("nose").propagate = True
     #logging.getLogger().addHandler(CloudLogHandler)
     #logging.getLogger().setLevel(logging.DEBUG)

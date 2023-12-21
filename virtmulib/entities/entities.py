@@ -125,13 +125,18 @@ class Library(BaseModel):
     def add_child(self, node: "Library"):
         self.children.append(node)
 
-    def get_top_tracks(self):
+    def get_top_tracks(self, top=20):
         trs = [f"{tr.artist.name} - {tr.name}" for tr in self.tracks]
-        return trs[:20] if len(trs) >= 20 else trs
+        return trs[:top] if len(trs) >= top else trs
 
-    def get_top_artists(self):
+    def get_top_artists(self, top=20):
+        # go through the list of artists
+        artists = [art.name for art in self.artists]
+
+        if len(artists) >= top:
+            return artists[top:]
+
         arts = {}
-
         # go through the playlists and fetch artists frequency
         for pl in self.playlists:
             arts1 = pl.get_top_artists()
@@ -157,19 +162,13 @@ class Library(BaseModel):
             else:
                 arts[tr.artist.name] = 1
         
-        # go through the list of artists
-        artists = [art.name for art in self.artists]
-
-        if len(artists) >= 20:
-            return artists
-        else:
-            items = list(arts.items())
-            items.sort(key=lambda a:a[1])
-            items = items[-20+len(artists) : ] \
-                        if len(items) > 20-len(artists) \
-                        else items
-            artists.extend([item[0] for item in items])
-            return artists
+        items = list(arts.items())
+        items.sort(key=lambda a:a[1])
+        items = items[-1*(top-len(artists)) : ] \
+                    if len(items) > top-len(artists) \
+                    else items
+        artists.extend([item[0] for item in items])
+        return artists
 
 
 class SimpleUser(BaseModel):
