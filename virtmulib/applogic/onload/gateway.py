@@ -14,10 +14,23 @@ from virtmulib.applogic.onload.abstract import OnLoad, OnLoadAuthError
 
 
 @define
+class UserLogin:
+    on_load: OnLoad
+
+    def execute(self) -> User | None:
+        "Calls the corresponding function in the onLoad class."
+        try:
+            return self.on_load.login_signup_user()
+        except OnLoadAuthError as e:
+            print(str(e))
+            return None
+
+
+@define
 class GetUserData:
     on_load: OnLoad
 
-    def execute(self) -> list[User] | None:
+    def execute(self) -> User | None:
         "Calls the corresponding function in the onLoad class."
         try:
             return self.on_load.login_onload_user_data()

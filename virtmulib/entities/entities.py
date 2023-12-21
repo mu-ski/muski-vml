@@ -3,7 +3,7 @@ from abc import ABC
 import json
 from typing import Optional
 import json
-from pydantic import BaseModel, EmailStr, UUID4, Field, ConfigDict#, HttpUrl
+from pydantic import BaseModel, EmailStr, UUID4, Field, ConfigDict, field_validator#, HttpUrl
 
 from virtmulib.entities.utils import (
     PyObjectId,
@@ -16,12 +16,17 @@ class MusicModel(BaseModel):
     model_config = ConfigDict(extra="allow", validate_assignment=True)
     genres: list[str] = []
     popularity: Optional[int] = None
-    user_request: Optional[str] = None
+    text_background: Optional[str] = None
     top_artists: Optional[str] = None
     top_tracks: Optional[str] = None
     related: Optional[list["VMLThing"]] = []
-    date: datetime.date = datetime.date(3000, 1, 1)
-    
+    year: str = None
+
+    @field_validator('year')
+    @classmethod
+    def validate_year(cls, v: str) -> str:
+        datetime.datetime.strptime(v, "%Y")
+        return v    
 
 class ExternalIDs(BaseModel):
     model_config = ConfigDict(extra="allow", validate_assignment=True)
@@ -31,40 +36,44 @@ class ExternalIDs(BaseModel):
     discogs: Optional[str] = None
     spotify: Optional[str] = None
 
+
 class VMLThing(BaseModel):
     model_config = ConfigDict(validate_assignment=True)
     id: Optional[PyObjectId] = Field(alias="_id", default=None)
     name: str
+    ext_ids: ExternalIDs = ExternalIDs()
+
     @classmethod
     def get_or_create(cls, data: dict):
         return cls(**data)
 
+
 class SimpleArtist(VMLThing):
     pass
+
 
 class Artist(SimpleArtist):
     music_model: Optional[MusicModel] = None
     albums: list["SimpleAlbum"] = []
     tracks: list["SimpleTrack"] = []
     thumb_url: Optional[str] = None
-    ext_ids: ExternalIDs = ExternalIDs()
 
 
 class SimpleTrack(VMLThing):
     artist: SimpleArtist
-    artist_sec: Optional[SimpleArtist] = None
 
 
 class Track(SimpleTrack):
+    artist_sec: Optional[SimpleArtist] = None
     albums: list["SimpleAlbum"] = []
     music_model: Optional[MusicModel] = None
     occurs_in: list[PyObjectId] = []
     thumb_url: Optional[str] = None
-    ext_ids: ExternalIDs = ExternalIDs()
 
 
 class SimpleAlbum(VMLThing):
     pass
+
 
 class Album(SimpleAlbum):
     artist: SimpleArtist
@@ -73,7 +82,6 @@ class Album(SimpleAlbum):
     music_model: Optional[MusicModel] = None
     label: Optional[str] = None
     thumb_url: Optional[str] = None
-    ext_ids: ExternalIDs = ExternalIDs()
     release_type: Optional[ReleaseTypeEnum] = None
 
     def get_top_artists(self):
@@ -87,16 +95,15 @@ class Album(SimpleAlbum):
 
 
 class SimplePlaylist(VMLThing):
-    pass
-
-class Playlist(SimplePlaylist):
     creator: "SimpleUser"
     description: Optional[str] = None
-    tracklist: list[SimpleTrack] = []
+
+
+class Playlist(SimplePlaylist):
     music_model: Optional[MusicModel] = None
     ai_agent_setup: Optional[AIAgentSetup] = None
     thumb_url: Optional[str] = None
-    ext_ids: ExternalIDs = ExternalIDs()
+    tracklist: list[SimpleTrack] = []
 
     def get_top_artists(self):
         cache = {}
@@ -108,15 +115,14 @@ class Playlist(SimplePlaylist):
         return cache
 
 
-
 class Library(BaseModel):
     # Consider using a built tree datasrtuct like bigtree instead
     # Better if something that works with pydantic out of the box
     id: Optional[PyObjectId] = Field(alias="_id", default=None)
     music_model: Optional[MusicModel] = None
     artists: list[SimpleArtist] = []
-    playlists: list[SimplePlaylist] = []
-    albums: list[SimpleAlbum] = []
+    playlists: list[Playlist] = []
+    albums: list[Album] = []
     tracks: list[SimpleTrack] = []
 
     parent: Optional["Library"] = None
@@ -175,6 +181,7 @@ class SimpleUser(BaseModel):
     id: Optional[PyObjectId] = Field(alias="_id", default=None)
     display_name: str
     music_model: Optional[MusicModel] = None
+    ext_ids: ExternalIDs = ExternalIDs()
 
     @classmethod
     def get_or_create(cls, data: dict):
@@ -186,14 +193,19 @@ class User(SimpleUser):
     
     #hash of email
     simple_id: Optional[str] = None
-    first_login: Optional[datetime.datetime] = None
-    last_login: Optional[datetime.datetime] = None
+    first_login: Optional[str] = None
+    last_login: Optional[str] = None
     num_logins: Optional[int] = None
     sessions: Optional[list[str]] = None
     lib: Optional[Library] = None
     lib_extended: Optional[Library] = None
     thumb_url: Optional[str] = None
-    ext_ids: ExternalIDs = ExternalIDs()
+
+    @field_validator('first_login','last_login')
+    @classmethod
+    def validate_year(cls, v: str) -> str:
+        datetime.datetime.strptime(v, "%Y-%m-%dT%H:%M:%S.%f")
+        return v    
 
 # class Session(BaseModel):
 #     user_simple_id: str

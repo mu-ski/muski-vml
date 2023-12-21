@@ -8,8 +8,14 @@ class OnLoad(ABC):
 
     @classmethod
     @abstractmethod
-    def login_onload_user_data(cls) -> User:
+    def login_singup_user(cls) -> User:
         "Fuction to implement the login onto the onloader service."
+        pass
+
+    @classmethod
+    @abstractmethod
+    def login_onload_user_data(cls) -> User:
+        "Fuction to implement the login and retrieving all data (music library) from the onloader service."
         pass
 
     @classmethod

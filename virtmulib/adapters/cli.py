@@ -7,7 +7,6 @@ def printn(s, empty_return=True, inpt=True):
         inp=input(note2)
         _printn()
         return inp
-    _printn()
     return None
 
 def _printn(n=15, s=''):
@@ -23,22 +22,36 @@ def greet():
     printn(" >> It does that by asking you for your preferences and creating a custom-made playlist for you automatically on your spotify account.")
     printn(" >> Muski works as follows:")
     printn(" >> 1. First, you give the Muski access to your spotify: it uses your spotify data to create a new Muski account and understands what music you like.")
-    printn(" >> 2. Second, you answer a couple of questions about what music means to you and your personal music preferences.")
+    printn(" >> 2. Second, you answer a couple of questions about your music preferences (only on the first time you register).")
     printn(" >> 3. Finally, the good part, you describe what kind of music you want to hear right NOW, and, voilà!, you will have a new playlist on your spotify.")
-    printn(" >> Ready to start? 😀") 
-    printn(" >> As soon as you press enter ⏎, your browser will open the spotify website, and you will be asked to allow Muski to read your data.")
+    printn(" >> Ready to start? 😀 As soon as you press enter ⏎, your browser will open the spotify website, and you will be asked to allow Muski to read your data.") 
+    # printn(" >> As soon as you press enter ⏎, your browser will open the spotify website, and you will be asked to allow Muski to read your data.", inpt=False)
+    # input()
+
 
 def query_user():
     printn(" >> Great! Step 1 of 3 done ✔️. Now for the juicy part, the questions.")
     ans1 = printn(" >> First: Tell us below 👇 what does music mean to you? And when do you typically listen to music? (The more detail, the better)", empty_return=False)
     ans2 = printn(" >> Second: What kinds of music do you like?", empty_return=False)
     ans3 = printn(" >> Third: What kinds of music do you dislike?", empty_return=False)
-    printn(" >> Thank you! Step 2 of 3 done ✔️ (We'll store your answers so that you don't need to enter them the next time. Press enter to go to the last step.")
+    printn(" >> Thank you! Step 2 of 3 done ✔️ (We'll store your answers so you don't have to enter them next time.")
     ans4 = printn(" >> Now, for the last step: What's your mood like now, what music do you want to listen to THIS moment? (Ex., 'sunny saturday morning music from Mali',  '70s disco music')", empty_return=False)
+    if not ans4:
+        ans4 = printn(" >> You need to tell us what music you want to listen to. More examples: 'Saxophone-led rock music',  '90s dance pop'", empty_return=False)
     printn(" >> Done! ✔️✔️✔️ You did your part, not it's our turn!")
-    emit("Preparing your playlist 🤩🎵🎶... Hold tight, this might take a minute... Discovering the best music for you...")
+    emit("Discovering the best music for you 🤩🎵🎶... Hold on tight, this might take a minute...")
 
     return ans1, ans2, ans3, ans4
+
+
+def query_returning_user():
+    ans4 = printn(" >> What's your mood like now, what music do you want to listen to THIS moment? (Ex., 'sunny saturday morning music from Mali',  '70s disco music')", empty_return=False)
+    if not ans4:
+        ans4 = printn(" >> You need to tell us what music you want to listen to. More examples: 'Saxophone-led rock music',  '90s dance pop'", empty_return=False)
+    printn(" >> Done! ✔️✔️✔️ You did your part, not it's our turn!")
+    emit("Discovering the best music for you 🤩🎵🎶... Hold on tight, this might take a minute...")
+    return ans4
+
     
 #         Top songs: Herbie Hancock - Maiden Voyage, Laika - Praire Dog
 #         What music means to me: Music is what I listen to when I need to discover new feelings and new imagination
