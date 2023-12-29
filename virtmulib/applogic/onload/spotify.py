@@ -17,6 +17,7 @@ from virtmulib.entities import ReleaseTypeEnum
 from virtmulib.applogic.onload.abstract import OnLoad, OnLoadAuthError, OnLoadGetType
 
 SCOPES = [
+    "user-read-email",
     "user-library-read",
     "user-follow-read",
     "user-top-read",
@@ -27,6 +28,13 @@ CNT: int = 0
 
 
 class OnLoadSpotify(OnLoad):
+    
+    @classmethod
+    def login_signup_user(cls) -> User:
+        sp = OnLoadSpotify.login_signup()
+        if sp:
+            return SpotifyGetUser.read(sp.me())
+
     @classmethod
     def login_signup(cls) -> Spotify:
         sp = None
@@ -114,16 +122,17 @@ class SpotifyAPICall:
             return func(inp)
 
 
-class SpotifyGetDate(OnLoadGetType):
+class SpotifyGetYear(OnLoadGetType):
     @classmethod
-    def read(cls, data: str) -> datetime.date:
-        lis = [int(i) for i in data.split("-")]
+    def read(cls, data: str) -> str:
+        return data.split("-")[0]
+        # lis = [int(i) for i in data.split("-")]
 
-        if len(lis) < 3:
-            default_date = [1900, 1, 1]
-            lis.extend(default_date[len(lis) :])
+        # if len(lis) < 3:
+        #     default_date = [1900, 1, 1]
+        #     lis.extend(default_date[len(lis) :])
 
-        return datetime.date(*lis)
+        # return datetime.date(*lis)
 
 
 class SpotifyGetUser(OnLoadGetType):
@@ -132,7 +141,7 @@ class SpotifyGetUser(OnLoadGetType):
         return User.get_or_create(
             {
                 "email": data.get("email"),
-                "name": data.get("display_name"),
+                "display_name": data.get("display_name"),
                 "ext_ids": {"spotify": data.get("id")},
             }
         )
@@ -218,7 +227,7 @@ class SpotifyGetAlbums(OnLoadGetType):
 
         alb["release_type"] = ReleaseTypeEnum.get_enum(data.get("album_type"))
         alb["label"] = data.get("label")
-        alb["music_model"] = {"date": SpotifyGetDate.read(data.get("release_date"))}
+        alb["music_model"] = {"year": SpotifyGetYear.read(data.get("release_date"))}
 
         alb_obj = Album.get_or_create(alb)
 

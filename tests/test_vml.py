@@ -34,11 +34,21 @@ def test_live_get_user_data_spotify():
 #         Music not liked: I typically don't like rock music, but there are exceptions, typically open-minded artists that are self-conscious of the role of the west in colonalism.
 #         Playlist request: It is a nice sunny sunday in december and I would like to listen to some creative and relaxed world music
 #         """
-#     title, playlist = ai_playlister.inference(user_query)
-#     print(title, playlist)
-#     pl = make_playlist(title, playlist)
+    
 
-#     assert pl is not None
+#     val = None
+#     import contextlib
+#     import os
+#     with contextlib.redirect_stdout(os.devnull):
+#         val = ai_playlister.inference(user_query)
+
+#     if val:
+#         title, playlist = val
+#         print(title, playlist)
+#         pl = make_playlist(title, playlist)
+#         assert pl is not None
+#     else:
+#         print('Due to user excitement and usage, the limit of the (free) AI-server we use has been completed. We are working on a more permanenet solution at the moment.')
 
 #     # print(user.lib.get_top_albums())
 #     # print(user.lib.get_top_tracks())
