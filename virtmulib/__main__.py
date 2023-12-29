@@ -16,6 +16,9 @@ from .entities import User, MusicModel
 
 from virtmulib.applogic import ai_playlister
 
+
+TEST = True
+
 def get_user_email_hash(email):
     return blake2b(
                 key=bytes(email, 'utf-8'),
@@ -51,17 +54,16 @@ def prog_logic():
         cli.emit(">> Analyzing your listening habits... This can take up to a minute, please be patient 😊...")
 
         # load_user_library
-        #user = usecases.get_user_data(OnLoadSpotify)
-        user = usecases.login_singup_user(OnLoadSpotify)
+        user = usecases.get_user_data(OnLoadSpotify)
         
         user.first_login = datetime.now().isoformat()
         
         email_hash = get_user_email_hash(user.email)
-        #db.set(user.lib.model_dump(exclude_defaults=True), f'lib/{email_hash}')
+        db.set(user.lib.model_dump(exclude_defaults=True), f'lib/{email_hash}')
         
         # get_top_x
-        #top_artists = user.lib.get_top_artists(top=10)
-        #top_tracks = user.lib.get_top_tracks(top=10)
+        top_artists = user.lib.get_top_artists(top=10)
+        top_tracks = user.lib.get_top_tracks(top=10)
 
         # Query user 
         answers = cli.query_user()
@@ -84,22 +86,22 @@ def prog_logic():
 
     # query AI
     val = None
-    # import contextlib
-    # with contextlib.redirect_stdout(os.devnull):
-    #     val = ai_playlister.inference(query)
-    val = 1
+    import contextlib
+    if not TEST:
+        with contextlib.redirect_stdout(os.devnull):
+            val = ai_playlister.inference(query)
 
     if val:
-        # title, playlist = val
+        title, playlist = val
         # make playlist
-        # pl = offload_spotify.make_playlist(title, playlist)
-        pl = 1
+        pl = offload_spotify.make_playlist(title, playlist)
         if pl:
             cli.emit(f"Voilà! Your playlist '{title}' is ready, run check your spotify!")
         else:
             cli.emit(f"Sorry 😅, it seems something went wrong from our side, we have reported this problem and will fix it ASAP. Please try again tomorrow!")
     else:
-        print('Due to user excitement and usage, the limit of the (free) AI-server we use has been completed. We are working on a more permanenet solution at the moment.')
+        print('Due to user excitement and usage, the limit of the (free) AI-servers we use has been completed. We are working on a more permanenet solution at the moment.')
+
 
     # update user data
     # write session 
