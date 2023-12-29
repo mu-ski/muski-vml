@@ -17,8 +17,8 @@ class MusicModel(BaseModel):
     genres: list[str] = []
     popularity: Optional[int] = None
     text_background: Optional[str] = None
-    top_artists: Optional[str] = None
-    top_tracks: Optional[str] = None
+    top_artists: Optional[list[str]] = None
+    top_tracks: Optional[list[str]] = None
     related: Optional[list["VMLThing"]] = []
     year: str = None
 

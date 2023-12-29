@@ -22,7 +22,8 @@ class CloudLogHandler(logging.Handler):
         logging.Handler.__init__(self=self)
 
     def emit(self, record) -> None:
-        path = f'logging/{os.environ["SESSION_ID"]}'
+        user_id = os.environ["USER_ID"] if "USER_ID" in os.environ.keys() else "_No User ID"
+        path = f'logging/{user_id}/{os.environ["SESSION_ID"]}'
         self.cdb.push(self.format(record), path)
         
 

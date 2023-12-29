@@ -32,16 +32,16 @@ def greet():
 def query_user():
     printn(" >> Great! Step 1 of 3 done ✔️. Now for the juicy part, the questions.")
     ans1 = printn(" >> First: Tell us below 👇 what does music mean to you? And when do you typically listen to music? (The more detail, the better)", empty_return=False)
-    ans2 = printn(" >> Second: What kinds of music do you like?", empty_return=False)
-    ans3 = printn(" >> Third: What kinds of music do you dislike?", empty_return=False)
+    ans2 = printn(" >> Second: What music do you typically avoid / dislike?", empty_return=False)
     printn(" >> Thank you! Step 2 of 3 done ✔️ (We'll store your answers so you don't have to enter them next time.")
-    ans4 = printn(" >> Now, for the last step: What's your mood like now, what music do you want to listen to THIS moment? (Ex., 'sunny saturday morning music from Mali',  '70s disco music')", empty_return=False)
-    if not ans4:
-        ans4 = printn(" >> You need to tell us what music you want to listen to. More examples: 'Saxophone-led rock music',  '90s dance pop'", empty_return=False)
-    printn(" >> Done! ✔️✔️✔️ You did your part, not it's our turn!")
+    #ans3 = printn(" >> Third: What kinds of music do you dislike?", empty_return=False)
+    ans3 = printn(" >> Finally, what's your mood like right NOW, what music do you feel like listening to? (Ex., 'sunny saturday morning music from Mali',  '70s disco music')", empty_return=False)
+    if not ans3:
+        ans3 = printn(" >> You need to tell us what music you want to listen to. More examples: 'Saxophone-led rock music',  '90s dance pop'", empty_return=False)
+    printn(" >> Done! ✔️✔️✔️ You did your part, now it's our turn!")
     emit("Discovering the best music for you 🤩🎵🎶... Hold on tight, this might take a minute...")
 
-    return ans1, ans2, ans3, ans4
+    return ans1, ans2, ans3
 
 
 def query_returning_user():

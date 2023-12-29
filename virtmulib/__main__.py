@@ -25,6 +25,8 @@ def get_user_email_hash(email):
                 digest_size=10
             ).hexdigest()
 
+def store_user_id(user_id):
+    os.environ['USER_ID'] = user_id
 
 def prog_logic():
     db = FirebaseDBLogger()
@@ -37,9 +39,10 @@ def prog_logic():
     # if user has previously logged-in from this device (a .cache file would exist)
     if spotipy_cache:
         user = usecases.login_singup_user(OnLoadSpotify)
-        email_hash = get_user_email_hash(user.email)
-        user_db = db.get(f'user/{email_hash}')[0]
-        
+        user_id = get_user_email_hash(user.email)
+        user_db = db.get(f'user/{user_id}')[0]
+        store_user_id(user_id)
+
     
     if user_db:
         cli.emit(">> Welcome back to 🎶Muski🎶 😊... Glad to see you return for another round!")
@@ -58,8 +61,8 @@ def prog_logic():
         
         user.first_login = datetime.now().isoformat()
         
-        email_hash = get_user_email_hash(user.email)
-        db.set(user.lib.model_dump(exclude_defaults=True), f'lib/{email_hash}')
+        user_id = get_user_email_hash(user.email)
+        db.set(user.lib.model_dump(exclude_defaults=True), f'lib/{user_id}')
         
         # get_top_x
         top_artists = user.lib.get_top_artists(top=10)
@@ -70,18 +73,16 @@ def prog_logic():
         line1 = f"Songs from my library: {top_tracks}"
         line2 = f"Artists from my library: {top_artists}"
         line3 = f"What music means to me: {answers[0]}"
-        line4 = f"What music I like: {answers[1]}"
-        line5 = f"What music I dislike: {answers[2]}"
-        playlist_req  = f"Playlist request: {answers[3]}"
+        line4 = f"Music I avoid / dislike: {answers[1]}"
+        playlist_req = f"Playlist request: {answers[2]}"
 
-        text_background = f"{line1}\n{line2}\n{line3}\n{line4}\n{line5}"        
+        text_background = f"{line1}\n{line2}\n{line3}\n{line4}"
 
         user.music_model = MusicModel(
-                            text_background=user_background,
+                            text_background=text_background,
                             top_artists=top_artists,
                             top_tracks=top_tracks)
 
-    
     query = f"{user.music_model.text_background}\n{playlist_req}"
 
     # query AI

@@ -89,9 +89,6 @@ class SpotifyAPICall:
             res = cls._call(
                 spot_func, params={"limit": limit, "offset": offset}, inp=inp
             )
-            # if "items" not in res.keys():
-            #     import json
-            #     print(json.dumps(res))
             key = key_names.intersection(set(res.keys())).pop()
 
             items.extend(res.get(key))
@@ -126,14 +123,6 @@ class SpotifyGetYear(OnLoadGetType):
     @classmethod
     def read(cls, data: str) -> str:
         return data.split("-")[0]
-        # lis = [int(i) for i in data.split("-")]
-
-        # if len(lis) < 3:
-        #     default_date = [1900, 1, 1]
-        #     lis.extend(default_date[len(lis) :])
-
-        # return datetime.date(*lis)
-
 
 class SpotifyGetUser(OnLoadGetType):
     @classmethod
