@@ -20,7 +20,7 @@ LLAMA_2_7B = "meta/llama-2-7b-chat:13c3cdee13ee059ab779f0291d29054dab00a47dad826
 LLAMA_2_13B = "meta/llama-2-13b-chat:f4e2de70d66816a838a89eeeb621910adffb0dd0baba3976c96980970978018d"
 LLAMA_2_70B = "meta/llama-2-70b-chat:02e509c789964a7ea8736978a43525956ef40397be9033abf9fd2badfe68c9e3"
 
-TEMP = 0.80
+TEMP = 0.84
 TOP_P = 0.9
 MAX_LENGTH = 128
 #TOP_K = 50
@@ -89,6 +89,10 @@ def format_output(out):
             tracks.append(tr[0])
         elif title_p.findall(line):
             title = line.split('#')[1].strip()
+    
+    if title is None:
+        title = out.split('\n')[0]
+    print(title, tracks)
     return title, tracks
 
 def inference(user_query):

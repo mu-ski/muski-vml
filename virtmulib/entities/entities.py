@@ -195,8 +195,8 @@ class User(SimpleUser):
     simple_id: Optional[str] = None
     first_login: Optional[str] = None
     last_login: Optional[str] = None
-    num_logins: Optional[int] = None
-    sessions: Optional[list[str]] = None
+    num_logins: Optional[int] = 0
+    sessions: Optional[list[str]] = []
     lib: Optional[Library] = None
     lib_extended: Optional[Library] = None
     thumb_url: Optional[str] = None
@@ -216,7 +216,7 @@ class ProgState(BaseModel):
     VERSION: str
     PERSIST_USER_LIB: str
     SPOTIFY_KEY: dict
-    REPLICATE_KEYS: list[str]
+    REPLICATE_KEY: str
     END_OF_LIFE: str
     WEBSITE: Optional[str] = None
     LATEST_NEWS: Optional[str] = None

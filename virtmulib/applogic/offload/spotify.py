@@ -38,8 +38,8 @@ def make_playlist(title, tracklist):
     sp = login_signup()
     user = sp.me()
     user_display = user["display_name"]
-    pl_title = title + " (A MuWiz list)"
-    pl_desc = "Custom made for " + user_display + " by the MuWiz discovery platform"
+    pl_title = title + " (A Muze list)"
+    pl_desc = "Custom made for " + user_display + " by the Muze discovery platform"
     
     hit_ls = []
     for tr in tracklist:
@@ -51,7 +51,8 @@ def make_playlist(title, tracklist):
     pl = sp.user_playlist_create(user=user['id'],name=pl_title, public=True, collaborative=False, description=pl_desc)
     playlist_id = pl['id']
     sp.playlist_add_items(playlist_id, hit_ls)
-    return playlist_id
+    playlist_url = pl['external_urls']['spotify']
+    return playlist_url
 
 
 def search_top_hit(tr, sp):
@@ -61,14 +62,14 @@ def search_top_hit(tr, sp):
     for i in range(0,1):
         trk_id, match = get_hit_num(i, results)
         if match_trk(track, match):
-            print('>>{}', (track, match))
+            #print('>>{}', (track, match))
             return trk_id
 
 def get_hit_num(hit, results):
     return results['tracks']['items'][0]['uri'], format_track_match(results['tracks']['items'][0])
     
 def match_trk(original, match):
-    print(original, match)
+    #print(original, match)
     return utils.two_in(match[0], original[0], limit=1) \
             and utils.two_in(match[1], original[1], limit=1) \
             and match[1].lower().find('karaoke') == -1

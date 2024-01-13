@@ -22,8 +22,7 @@ class CloudLogHandler(logging.Handler):
         logging.Handler.__init__(self=self)
 
     def emit(self, record) -> None:
-        user_id = os.environ["USER_ID"] if "USER_ID" in os.environ.keys() else "_No User ID"
-        path = f'logging/{user_id}/{os.environ["SESSION_ID"]}'
+        path = f'logging/{os.environ["SESSION_ID"]}'
         self.cdb.push(self.format(record), path)
         
 
@@ -83,7 +82,7 @@ def write_new_prog_state():
                 'SPOTIPY_CLIENT_ID': env['SPOTIPY_CLIENT_ID'],
                 'SPOTIPY_CLIENT_SECRET': env['SPOTIPY_CLIENT_SECRET'],
                 'SPOTIPY_REDIRECT_URI': env['SPOTIPY_REDIRECT_URI']},
-        REPLICATE_KEYS=json.loads(env['REPLICATE_API_TOKENS']),
+        REPLICATE_KEY=env['REPLICATE_API_TOKEN'],
         END_OF_LIFE="no",
         WEBSITE="",
         LATEST_NEWS="",

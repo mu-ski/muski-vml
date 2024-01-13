@@ -36,9 +36,11 @@ class FirebaseDBLogger(CloudDB):
         return db.reference(path).get(path)
 
     def update(self, item: dict, path):
+        db.reference(path).update(item)
         pass
 
     def delete(self, path):
+        db.reference(path).delete()
         pass
 
 
