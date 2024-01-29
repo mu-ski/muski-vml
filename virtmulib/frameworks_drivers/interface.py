@@ -1,9 +1,9 @@
 from abc import ABC, abstractmethod
 from attrs import define
 
+
 @define
 class CloudDB:
-
     @abstractmethod
     def set(self, item: dict, path):
         pass

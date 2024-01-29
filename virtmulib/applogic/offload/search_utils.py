@@ -5,7 +5,7 @@ import string
 import unidecode
 import pkgutil
 
-STOPWORDS = pkgutil.get_data('virtmulib.applogic.offload', "stopwords").decode('utf-8')
+STOPWORDS = pkgutil.get_data("virtmulib.applogic.offload", "stopwords").decode("utf-8")
 
 
 def remove_blacklist_chars(fn):
@@ -34,11 +34,7 @@ def filter_out_stopwords_punc(lst):
     return [
         word
         for word in lst
-        if not (
-            word in STOPWORDS
-            or word in string.punctuation
-            or len(word) < 2
-        )
+        if not (word in STOPWORDS or word in string.punctuation or len(word) < 2)
     ]
 
 

@@ -9,7 +9,6 @@ from pydantic_core import core_schema
 #     pass
 
 
-
 class AIAgentEnum(str, Enum):
     llamma_2_70gb = "llamma_2_70gb"
 

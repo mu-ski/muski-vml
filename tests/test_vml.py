@@ -12,14 +12,16 @@ from tests.utils import *
 test_data = json.loads(open("tests/json_test_data/test.json", "r").read())
 monkeypatch = MonkeyPatch()
 
+
 @pytest.mark.e2e
 def test_live_get_user_data_spotify():
     # monkeypatch.undo()
     user = usecases.get_user_data(OnLoadSpotify)
     obj = json.dumps(obj_to_dict(user))
     print(user.lib.get_top_tracks())
-    #print(obj)
+    # print(obj)
     assert obj != {}
+
 
 # @pytest.mark.e2e
 # def test_full_e2e():
@@ -34,7 +36,7 @@ def test_live_get_user_data_spotify():
 #         Music not liked: I typically don't like rock music, but there are exceptions, typically open-minded artists that are self-conscious of the role of the west in colonalism.
 #         Playlist request: It is a nice sunny sunday in december and I would like to listen to some creative and relaxed world music
 #         """
-    
+
 
 #     val = None
 #     import contextlib

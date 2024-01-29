@@ -9,8 +9,8 @@ from virtmulib.entities import (
     Album,
     Track,
     Library,
-    Artist
-    #VMLThing
+    Artist,
+    # VMLThing
 )
 
 from virtmulib.entities import ReleaseTypeEnum
@@ -28,7 +28,6 @@ CNT: int = 0
 
 
 class OnLoadSpotify(OnLoad):
-    
     @classmethod
     def login_signup_user(cls) -> User:
         sp = OnLoadSpotify.login_signup()
@@ -56,7 +55,7 @@ class OnLoadSpotify(OnLoad):
         arts = cls.get_artists(sp)
 
         user.lib = Library(playlists=pl, artists=arts, albums=albs, tracks=trs)
-        
+
         # user.lib_extended = SpotifyGetExtendedLibrary.retrieve(user.lib)
 
         return user
@@ -84,7 +83,7 @@ class SpotifyAPICall:
     @classmethod
     def execute(cls, spot_func: type, limit=20, inp=None, mx=2000) -> list[dict]:
         items = []
-        key_names = {'items', 'albums', 'artists', 'tracks'}
+        key_names = {"items", "albums", "artists", "tracks"}
         for offset in range(0, mx, limit):
             res = cls._call(
                 spot_func, params={"limit": limit, "offset": offset}, inp=inp
@@ -92,9 +91,7 @@ class SpotifyAPICall:
             key = key_names.intersection(set(res.keys())).pop()
 
             items.extend(res.get(key))
-            if not res[key] \
-                    or "next" not in res.keys() \
-                    or res["next"] is None:
+            if not res[key] or "next" not in res.keys() or res["next"] is None:
                 break
 
         return items
@@ -124,6 +121,7 @@ class SpotifyGetYear(OnLoadGetType):
     def read(cls, data: str) -> str:
         return data.split("-")[0]
 
+
 class SpotifyGetUser(OnLoadGetType):
     @classmethod
     def read(cls, data: dict) -> User:
@@ -145,8 +143,8 @@ class SpotifyGetCommonDict(OnLoadGetType):
 
         if "genres" in data.keys():
             grs = [SpotifyGetGenres.read(g) for g in data["genres"]]
-            #it["genres"] = grs
-            it["music_model"] = {'genres': grs}
+            # it["genres"] = grs
+            it["music_model"] = {"genres": grs}
 
         if "images" in data.keys():
             imgs = data.get("images")
@@ -272,14 +270,14 @@ class SpotifyGetArtists(OnLoadGetType):
 class SpotifyGetExtendedLibrary(OnLoadGetType):
     @classmethod
     def retrieve(cls, lib: Library, sp: Spotify = None) -> list[Album]:
-        #import json
-        #print(json.dumps(lib.model_dump(exclude_defaults=True), default=str))
+        # import json
+        # print(json.dumps(lib.model_dump(exclude_defaults=True), default=str))
         to_get = set()
         for pl in lib.playlists:
             for tr in pl.tracklist:
                 for alb in tr.albums:
                     to_get.add(alb.ext_ids.spotify)
-    
+
         to_get.union(cls._get_albums_with_no_tracklist(lib.albums))
 
         for artist in lib.artists:
@@ -294,20 +292,18 @@ class SpotifyGetExtendedLibrary(OnLoadGetType):
         alb_objs = []
 
         for offset in range(0, len(to_get_lis), 20):
-            albs = SpotifyAPICall.execute(sp.albums, inp=to_get_lis[offset: offset+20])
+            albs = SpotifyAPICall.execute(
+                sp.albums, inp=to_get_lis[offset : offset + 20]
+            )
             alb_objs.extend([SpotifyGetAlbums.read(alb) for alb in albs])
-        
+
         lib_obj = Library(albums=alb_objs)
         return lib_obj
-    
+
     @classmethod
     def _get_albums_with_no_tracklist(cls, albs: list[Album]) -> set[str]:
-        #print()
-        return set([
-                    alb.ext_ids.spotify 
-                    for alb in albs 
-                    if not alb.tracklist])
-
+        # print()
+        return set([alb.ext_ids.spotify for alb in albs if not alb.tracklist])
 
 
 # def get_related_artists(art_id: str) -> list[Artist]:

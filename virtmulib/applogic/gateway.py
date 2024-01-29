@@ -33,8 +33,6 @@ import virtmulib.applogic.onload.gateway as onload_gateway
 from virtmulib.applogic.onload.abstract import OnLoad
 
 
-
-
 def login_singup_user(onload_type: OnLoad):
     return onload_gateway.UserLogin(onload_type).execute()
 

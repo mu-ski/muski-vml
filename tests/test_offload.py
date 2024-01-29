@@ -1,7 +1,4 @@
-
 from virtmulib.applogic.offload.spotify import make_playlist
-
-
 
 
 # def test_get_playlist_offload_spotify():
@@ -10,16 +7,16 @@ from virtmulib.applogic.offload.spotify import make_playlist
 #     make_playlist(l, "The Residents (II)")
 
 # def test_get_playlist_offload_spotify_2():
-#     l = ["Fela Kuti - Zombie", "Baba Maal - Yela", "Caetano Veloso - Terra", 
-#         "Herbie Hancock - Watermelon Man", "Ali Farka Toure - Tinariwen", 
+#     l = ["Fela Kuti - Zombie", "Baba Maal - Yela", "Caetano Veloso - Terra",
+#         "Herbie Hancock - Watermelon Man", "Ali Farka Toure - Tinariwen",
 #         "The Cinematic Orchestra - To Build a Home", "Mulatu Astatke - Yegelle Tezeta",
 #         "Khruangbin - Maria También", "BADBADNOTGOOD - Time Moves Slow", "Richard Bona - Mbemba"]
 #     make_playlist(l, "Sunny Decemeber Sunday Playlist")
 
 # def test_get_playlist_offload_spotify_3():
-#     l = ["Fela Kuti - Zombie", "Balkan Beat Box - Electric Gypsy", "Gipsy Kings - Djobi Djobi", 
+#     l = ["Fela Kuti - Zombie", "Balkan Beat Box - Electric Gypsy", "Gipsy Kings - Djobi Djobi",
 #             "Oumou Sangaré - Waati", "Thievery Corporation - The Beauty of Noise", "Mokobe - Ayoba",
-#             "Natacha Atlas - Why Not?", "Gogol Bordello - Start Wearing Purple", 
+#             "Natacha Atlas - Why Not?", "Gogol Bordello - Start Wearing Purple",
 #             "Youssou N'Dour & Neneh Cherry - 7 Seconds", "Esperanza Spalding - Black Gold"]
 #     make_playlist(l, "WorldWanderlust: A Journey Through Global Grooves")
 

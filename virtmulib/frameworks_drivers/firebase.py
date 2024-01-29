@@ -1,4 +1,4 @@
-#from firebase_functions import logger
+# from firebase_functions import logger
 
 # Import the necessary modules
 
@@ -6,26 +6,26 @@ import os
 import firebase_admin
 from firebase_admin import credentials, db
 
-from .interface  import CloudDB
+from .interface import CloudDB
 
 
-
-#ref = db.reference("logging")
+# ref = db.reference("logging")
 # ref2 = ref.child("-Nm0PR4gi16KWmhXMgZq")
 # print(ref2.get())
 
 
-#logger = logging.getLogger(__name__)
+# logger = logging.getLogger(__name__)
 # app = firebase_admin.initialize_app(
-#         credentials.Certificate(os.environ['FIREBASE_JSON_KEY_PATH']), 
+#         credentials.Certificate(os.environ['FIREBASE_JSON_KEY_PATH']),
 #         {'databaseURL': os.environ['FIREBASE_DB_URL']})
 
 firebase_admin.initialize_app(
-        credentials.Certificate(os.environ['FIREBASE_JSON_KEY_PATH']), 
-        {'databaseURL': os.environ['FIREBASE_DB_URL']})
+    credentials.Certificate(os.environ["FIREBASE_JSON_KEY_PATH"]),
+    {"databaseURL": os.environ["FIREBASE_DB_URL"]},
+)
+
 
 class FirebaseDBLogger(CloudDB):
-
     def set(self, item: dict, path):
         return db.reference(path).set(item)
 
@@ -49,18 +49,17 @@ class FirebaseDBLogger(CloudDB):
 # cred = credentials.Certificate(os.environ['FIREBASE_JSON_KEY_PATH'])
 # conn = firebase_admin.initialize_app(
 #                                 credentials.Certificate(
-#                                     os.environ['FIREBASE_JSON_KEY_PATH']), 
+#                                     os.environ['FIREBASE_JSON_KEY_PATH']),
 #                                     {'databaseURL': os.environ['FIREBASE_DB_URL']}
 #                                 )
 # print(type(conn) is firebase_admin.App)
-#ref = db.reference()
+# ref = db.reference()
 
-#ref = db.reference('logging').set({'act': 2})
+# ref = db.reference('logging').set({'act': 2})
 
-#print(s)
+# print(s)
 
 # data = ref.get()
 # print(data)
 
 # "https://muski-6b55f-default-rtdb.europe-west1.firebasedatabase.app/"
-
