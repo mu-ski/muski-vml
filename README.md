@@ -1,10 +1,12 @@
-![demo](https://github.com/n42r/virtmulib/blob/main/docs/screen-capture.gif?raw=true)
-
 # Muze
 
-Muze is a music discovery and recommendation CLI tool. I built this tool because music discovery has been a personal interest for some time. I uses an LLM as a backend and aske the users several questions about their interests and 
+Muze is a music discovery and recommendation tool. 
 
-Virtual music library and music recommendation engine
+![demo](https://github.com/n42r/virtmulib/blob/main/docs/screen-capture.gif?raw=true)
+
+It was a prototype to test the limit of LLM/AI-driven music recommendation and explore whether I want to dive deeper in that direction in a more serious direction. I ended up deciding to follow a different direction in music recommendation and discovery. It was also an opportunity for me to explore the Clean / Hexagonal modular monolith architectural pattern (see below). I also wanted to experiment with recent python tools such as Pydantic.
+
+Overall, I think this project might be interesting to those who want to build AI-driven music recommendation. Sadly, I am not hosting it anymore due to LLM hosting costs being too high for an aborted project.
 
 ## Architecture
 
