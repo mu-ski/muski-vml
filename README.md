@@ -1,4 +1,4 @@
-# Muze (Back-end)
+# Muze AI (Back-end)
 
 An AI/LLM-driven music discovery and recommendation service.
 
