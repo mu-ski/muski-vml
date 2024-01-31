@@ -4,7 +4,9 @@ Muze is an AI/LLM-driven music discovery and recommendation service.
 
 ![demo](https://github.com/n42r/virtmulib/blob/main/docs/screen-capture.gif?raw=true)
 
-This is part of a larger web-based / mobile service that I was planning on, it contains the core functionality accessible from the CLI. I built it to test the limit of LLM/AI-driven music recommendation and explore whether I want to dive deeper in this direction. I ended up deciding to follow a different route in music recommendation and discovery (human/social-driven). It was also an opportunity for me to explore the Clean / Hexagonal / modular monolith architecture (see below). I also wanted to experiment with recently revamped python tools such as Pydantic 2 and so on.
+This is part of a larger web-based / mobile service that I was planning on, it contains the core functionality accessible from the CLI. I built it to test the limit of LLM/AI-driven music recommendation and explore whether I want to dive deeper in this direction. 
+
+I ended up deciding to follow a different route in music recommendation and discovery (human/social-driven). It was also an opportunity for me to explore the Clean / Hexagonal / modular monolith architecture (see below). I also wanted to experiment with recently revamped python tools such as Pydantic 2 and so on.
 
 Overall, I think this project might be interesting to anyone who wants to build an AI-driven music recommendation. I am not hosting it anymore due to LLM hosting costs being too high for an aborted project.
 
