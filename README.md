@@ -1,6 +1,6 @@
 # Muze (Back-end)
 
-Muze is an AI/LLM-driven music discovery and recommendation service.
+An AI/LLM-driven music discovery and recommendation service.
 
 ![demo](https://github.com/n42r/virtmulib/blob/main/docs/screen-capture.gif?raw=true)
 
